@@ -39,7 +39,7 @@ export default async function HomePage() {
             rel="noopener noreferrer"
             target="_blank"
           >
-            Documentation
+            Documentation..
           </a>
         </div>
       </div>

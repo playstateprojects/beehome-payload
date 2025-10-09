@@ -134,11 +134,10 @@ export const Commitments: CollectionConfig = {
           apiKey: process.env.DEEPSEEK_API_KEY!,
           model: 'deepseek-chat',
           temperature: 0.2,
-          maxTokens: 300,
+          maxTokens: 500,
         },
         {
           fields: ['title', 'description'],
-          sourceLocale: 'en',
           guardFlagField: 'autoLocalize',
         },
       ),

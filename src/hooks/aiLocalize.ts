@@ -1,6 +1,6 @@
 // src/payload/hooks/aiLocalize.ts
 import type { Payload, RequestContext } from 'payload'
-import type { AfterChangeHook as CollectionAfterChangeHook } from 'payload/types'
+import type { AfterChangeHook as CollectionAfterChangeHook } from 'types'
 
 type ClientOpts = {
   baseURL?: string

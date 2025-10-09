@@ -30,12 +30,7 @@ export default async function HomePage() {
         {!user && <h1>Welcome to the pyload test.</h1>}
         {user && <h1>Welcome back, {user.email}</h1>}
         <div className="links">
-          <a
-            className="admin"
-            href={payloadConfig.routes.admin}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
+          <a className="admin" href={payloadConfig.routes.admin} rel="noopener noreferrer">
             Go to admin panel
           </a>
           <a

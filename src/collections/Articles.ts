@@ -100,7 +100,8 @@ export const Articles: CollectionConfig = {
       ({ data, req }) => {
         if (!data) return
         if (!data.slug || String(data.slug).trim() === '') {
-          const defaultLocale = req.payload.config.localization?.defaultLocale || 'en'
+          const localization = req.payload.config.localization
+          const defaultLocale = localization ? localization.defaultLocale : 'en'
           const title =
             (typeof data.title === 'object' ? data.title?.[defaultLocale] : data.title) || ''
           if (title) data.slug = slugify(title)

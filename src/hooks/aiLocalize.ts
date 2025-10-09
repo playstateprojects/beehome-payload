@@ -1,6 +1,6 @@
 // src/payload/hooks/aiLocalize.ts
 import type { Payload, RequestContext } from 'payload'
-import type { AfterChangeHook as CollectionAfterChangeHook } from 'types'
+import type { CollectionAfterChangeHook } from 'payload'
 
 type ClientOpts = {
   baseURL?: string
@@ -213,7 +213,7 @@ async function callJSONModel<T = any>(
       signal: controller.signal,
     })
     if (!res.ok) throw new Error(`LLM error ${res.status}: ${await res.text().catch(() => '')}`)
-    const json = await res.json()
+    const json = (await res.json()) as any
     const content = json?.choices?.[0]?.message?.content
     if (!content) throw new Error('Empty LLM response')
     return JSON.parse(content) as T
@@ -283,7 +283,7 @@ export function aiLocalizeCollection(
 ): CollectionAfterChangeHook {
   const skipIfSlateTarget = config.skipIfSlateTarget ?? true
 
-  return async ({ req, doc, collection, context }) => {
+  return async ({ req, doc, collection, context }: any) => {
     if (req.headers?.[HEADER_GUARD] === '1') return doc
 
     const payload = req.payload as Payload
@@ -319,7 +319,9 @@ export function aiLocalizeCollection(
     const scores = Object.fromEntries(
       allLocales.map((l) => [l, contentScore(docAllLocales, fieldsToLocalize, l, fieldMeta)]),
     )
-    const bestLocale = Object.entries(scores).sort((a, b) => b[1] - a[1])[0]?.[0]
+    const bestLocale = Object.entries(scores).sort(
+      (a, b) => (b[1] as number) - (a[1] as number),
+    )[0]?.[0]
     const actualSourceLocale = config.sourceLocale
       ? scores[config.sourceLocale] > 0
         ? config.sourceLocale
@@ -436,7 +438,7 @@ export function aiLocalizeCollection(
         await payload.update({
           collection: collection.slug,
           id: doc.id,
-          locale,
+          locale: locale as 'en' | 'fr' | 'de',
           data: patch,
           depth: 0,
           overrideAccess: true,

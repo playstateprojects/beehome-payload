@@ -10,6 +10,9 @@ import { r2Storage } from '@payloadcms/storage-r2'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { PushNotifications } from './collections/PushNotifications'
+import { SpaceTypes } from './collections/SpaceTypes'
+import Articles from './collections/Articles'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -27,7 +30,11 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  localization: {
+    locales: ['en', 'fr', 'de'], // required
+    defaultLocale: 'de', // required
+  },
+  collections: [Users, Media, PushNotifications, SpaceTypes, Articles],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -36,6 +43,7 @@ export default buildConfig({
   // database-adapter-config-start
   db: sqliteD1Adapter({ binding: cloudflare.env.D1 }),
   // database-adapter-config-end
+  cors: '*',
   plugins: [
     // storage-adapter-placeholder
     r2Storage({

@@ -217,6 +217,10 @@ export interface Commitment {
   title: string;
   description?: string | null;
   /**
+   * Single emoji character (optional)
+   */
+  emoji?: string | null;
+  /**
    * e.g. planting, maintenance, water, nesting
    */
   category?: string | null;
@@ -435,6 +439,7 @@ export interface CommitmentsSelect<T extends boolean = true> {
   key?: T;
   title?: T;
   description?: T;
+  emoji?: T;
   category?: T;
   impact_score?: T;
   seasonal_start_month?: T;

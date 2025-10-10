@@ -56,6 +56,24 @@ export const Commitments: CollectionConfig = {
       localized: true,
     },
     {
+      name: 'emoji',
+      type: 'text',
+      localized: false,
+      required: false,
+      admin: {
+        description: 'Single emoji character (optional)',
+      },
+      validate: (value) => {
+        if (!value) return true // optional field
+        // Regex to match a single emoji (including multi-codepoint emojis)
+        const emojiRegex = /^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)$/u
+        if (!emojiRegex.test(value)) {
+          return 'Please enter a valid emoji character'
+        }
+        return true
+      },
+    },
+    {
       name: 'category',
       type: 'text',
       localized: false,

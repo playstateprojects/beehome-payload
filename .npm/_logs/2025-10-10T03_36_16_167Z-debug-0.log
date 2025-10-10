@@ -1,0 +1,18 @@
+0 verbose cli /Users/tomcox/.nvm/versions/node/v24.5.0/bin/node /Users/tomcox/.nvm/versions/node/v24.5.0/lib/node_modules/npm/bin/npm-cli.js
+1 info using npm@11.5.1
+2 info using node@v24.5.0
+3 silly config load:file:/Users/tomcox/.nvm/versions/node/v24.5.0/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/tomcox/Documents/wp/beehome-payload/.npmrc
+5 silly config load:file:/Users/tomcox/.nvm/versions/node/v24.5.0/etc/npmrc
+6 verbose title npm exec wrangler d1 execute D1 --command select sqlite_version();
+7 verbose argv "exec" "--" "wrangler" "d1" "execute" "D1" "--command" "select sqlite_version();"
+8 verbose logfile logs-max:10 dir:/Users/tomcox/Documents/wp/beehome-payload/.npm/_logs/2025-10-10T03_36_16_167Z-
+9 verbose logfile /Users/tomcox/Documents/wp/beehome-payload/.npm/_logs/2025-10-10T03_36_16_167Z-debug-0.log
+10 silly logfile done cleaning log files
+11 http fetch GET https://registry.npmjs.org/npm attempt 1 failed with ENOTFOUND
+12 verbose cwd /Users/tomcox/Documents/wp/beehome-payload
+13 verbose os Darwin 24.5.0
+14 verbose node v24.5.0
+15 verbose npm  v11.5.1
+16 verbose exit 1
+17 verbose code 1

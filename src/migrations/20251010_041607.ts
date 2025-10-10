@@ -111,7 +111,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   );
   `)
   await db.run(sql`CREATE UNIQUE INDEX IF NOT EXISTS \`articles_locales_locale_parent_id_unique\` ON \`articles_locales\` (\`_locale\`,\`_parent_id\`);`)
-  try { await db.run(sql`ALTER TABLE \`users\` ADD \`name\` text NOT NULL;`) } catch (_e) { /* Column may already exist */ }
+  try { await db.run(sql`ALTER TABLE \`users\` ADD \`name\` text;`) } catch (_e) { /* Column may already exist */ }
   try { await db.run(sql`ALTER TABLE \`payload_locked_documents_rels\` ADD \`push_notifications_id\` integer REFERENCES push_notifications(id);`) } catch (_e) { /* Column may already exist */ }
   try { await db.run(sql`ALTER TABLE \`payload_locked_documents_rels\` ADD \`space_types_id\` integer REFERENCES space_types(id);`) } catch (_e) { /* Column may already exist */ }
   try { await db.run(sql`ALTER TABLE \`payload_locked_documents_rels\` ADD \`commitments_id\` integer REFERENCES commitments(id);`) } catch (_e) { /* Column may already exist */ }

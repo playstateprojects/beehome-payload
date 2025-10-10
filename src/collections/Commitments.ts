@@ -63,7 +63,7 @@ export const Commitments: CollectionConfig = {
       admin: {
         description: 'Single emoji character (optional)',
       },
-      validate: (value) => {
+      validate: (value: string) => {
         if (!value) return true // optional field
         // Regex to match a single emoji (including multi-codepoint emojis)
         const emojiRegex = /^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)$/u

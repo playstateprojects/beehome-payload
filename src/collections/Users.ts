@@ -5,14 +5,8 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
   },
-  auth: { useSessions: false },
+  auth: true,
   fields: [
     // Email added by default
-    {
-      name: 'name',
-      label: 'Name',
-      type: 'text',
-      required: true,
-    },
   ],
 }

@@ -73,6 +73,7 @@ export interface Config {
     'space-types': SpaceType;
     commitments: Commitment;
     articles: Article;
+    'in-app-notifications': InAppNotification;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -85,6 +86,7 @@ export interface Config {
     'space-types': SpaceTypesSelect<false> | SpaceTypesSelect<true>;
     commitments: CommitmentsSelect<false> | CommitmentsSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
+    'in-app-notifications': InAppNotificationsSelect<false> | InAppNotificationsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -127,7 +129,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
-  name: string;
+  name?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -169,7 +171,13 @@ export interface Media {
  */
 export interface PushNotification {
   id: number;
-  name: string;
+  title: string;
+  message: string;
+  image?: (number | null) | Media;
+  publishDate?: string | null;
+  schedule?: number | null;
+  limmit?: number | null;
+  key: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -297,6 +305,22 @@ export interface Article {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "in-app-notifications".
+ */
+export interface InAppNotification {
+  id: number;
+  title: string;
+  message: string;
+  image?: (number | null) | Media;
+  publishDate?: string | null;
+  schedule?: number | null;
+  limmit?: number | null;
+  key: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -325,6 +349,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'articles';
         value: number | Article;
+      } | null)
+    | ({
+        relationTo: 'in-app-notifications';
+        value: number | InAppNotification;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -412,7 +440,13 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "push-notifications_select".
  */
 export interface PushNotificationsSelect<T extends boolean = true> {
-  name?: T;
+  title?: T;
+  message?: T;
+  image?: T;
+  publishDate?: T;
+  schedule?: T;
+  limmit?: T;
+  key?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -462,6 +496,21 @@ export interface ArticlesSelect<T extends boolean = true> {
   publishDate?: T;
   author?: T;
   reviewStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "in-app-notifications_select".
+ */
+export interface InAppNotificationsSelect<T extends boolean = true> {
+  title?: T;
+  message?: T;
+  image?: T;
+  publishDate?: T;
+  schedule?: T;
+  limmit?: T;
+  key?: T;
   updatedAt?: T;
   createdAt?: T;
 }

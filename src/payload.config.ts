@@ -14,6 +14,7 @@ import { PushNotifications } from './collections/PushNotifications'
 import { SpaceTypes } from './collections/SpaceTypes'
 import { Commitments } from './collections/Commitments'
 import Articles from './collections/Articles'
+import { InAppNotifications } from './collections/InAppNotifications'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -35,7 +36,15 @@ export default buildConfig({
     locales: ['en', 'fr', 'de'], // required
     defaultLocale: 'de', // required
   },
-  collections: [Users, Media, PushNotifications, SpaceTypes, Commitments, Articles],
+  collections: [
+    Users,
+    Media,
+    PushNotifications,
+    SpaceTypes,
+    Commitments,
+    Articles,
+    InAppNotifications,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

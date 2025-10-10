@@ -1,10 +1,10 @@
 import { aiLocalizeCollection } from '@/hooks/aiLocalize'
 import type { CollectionConfig } from 'payload'
 
-export const PushNotifications: CollectionConfig = {
-  slug: 'push-notifications',
+export const InAppNotifications: CollectionConfig = {
+  slug: 'in-app-notifications',
   admin: {
-    useAsTitle: 'title',
+    useAsTitle: 'message',
     defaultColumns: ['title', 'message', 'publishDate'],
     group: 'Notifications',
   },

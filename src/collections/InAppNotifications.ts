@@ -33,7 +33,21 @@ export const InAppNotifications: CollectionConfig = {
       label: 'Publish date',
       type: 'date',
       defaultValue: () => new Date().toISOString(),
-      admin: { date: { pickerAppearance: 'dayAndTime' } },
+      admin: {
+        date: { pickerAppearance: 'dayAndTime' },
+        description: 'Will not be displayed before this date',
+      },
+      localized: false,
+    },
+    {
+      name: 'endDate',
+      label: 'End Date',
+      type: 'date',
+      defaultValue: () => new Date().toISOString(),
+      admin: {
+        date: { pickerAppearance: 'dayAndTime' },
+        description: 'Will not be displayed after this date',
+      },
       localized: false,
     },
     {
@@ -55,6 +69,7 @@ export const InAppNotifications: CollectionConfig = {
       type: 'text',
       required: true,
       localized: false,
+      hidden: true,
     },
   ],
   hooks: {

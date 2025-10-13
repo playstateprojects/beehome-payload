@@ -314,7 +314,14 @@ export interface InAppNotification {
   title: string;
   message: string;
   image?: (number | null) | Media;
+  /**
+   * Will not be displayed before this date
+   */
   publishDate?: string | null;
+  /**
+   * Will not be displayed after this date
+   */
+  endDate?: string | null;
   schedule?: number | null;
   limmit?: number | null;
   key: string;
@@ -563,6 +570,7 @@ export interface InAppNotificationsSelect<T extends boolean = true> {
   message?: T;
   image?: T;
   publishDate?: T;
+  endDate?: T;
   schedule?: T;
   limmit?: T;
   key?: T;

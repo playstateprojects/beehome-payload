@@ -74,6 +74,7 @@ export interface Config {
     commitments: Commitment;
     articles: Article;
     'in-app-notifications': InAppNotification;
+    'action-cards': ActionCard;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -87,6 +88,7 @@ export interface Config {
     commitments: CommitmentsSelect<false> | CommitmentsSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     'in-app-notifications': InAppNotificationsSelect<false> | InAppNotificationsSelect<true>;
+    'action-cards': ActionCardsSelect<false> | ActionCardsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -321,6 +323,55 @@ export interface InAppNotification {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "action-cards".
+ */
+export interface ActionCard {
+  id: number;
+  title: string;
+  slug: string;
+  /**
+   * Appears top left.
+   */
+  topic: string;
+  /**
+   * Appears top right.
+   */
+  tag: string;
+  /**
+   * A link to follow when the action cards is clicked.
+   */
+  link?: string | null;
+  image?: (number | null) | Media;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  publishDate?: string | null;
+  endDate?: string | null;
+  /**
+   * Show even if already viewed
+   */
+  multipleViews?: boolean | null;
+  /**
+   * Display this Action Card to all users. No rules will be checked before display
+   */
+  displayToAllUsers?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -353,6 +404,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'in-app-notifications';
         value: number | InAppNotification;
+      } | null)
+    | ({
+        relationTo: 'action-cards';
+        value: number | ActionCard;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -511,6 +566,25 @@ export interface InAppNotificationsSelect<T extends boolean = true> {
   schedule?: T;
   limmit?: T;
   key?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "action-cards_select".
+ */
+export interface ActionCardsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  topic?: T;
+  tag?: T;
+  link?: T;
+  image?: T;
+  body?: T;
+  publishDate?: T;
+  endDate?: T;
+  multipleViews?: T;
+  displayToAllUsers?: T;
   updatedAt?: T;
   createdAt?: T;
 }

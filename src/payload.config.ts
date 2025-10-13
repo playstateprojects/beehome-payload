@@ -15,6 +15,7 @@ import { SpaceTypes } from './collections/SpaceTypes'
 import { Commitments } from './collections/Commitments'
 import Articles from './collections/Articles'
 import { InAppNotifications } from './collections/InAppNotifications'
+import ActionCards from './collections/ActionCards'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -44,6 +45,7 @@ export default buildConfig({
     Commitments,
     Articles,
     InAppNotifications,
+    ActionCards,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

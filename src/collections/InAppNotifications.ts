@@ -8,6 +8,14 @@ export const InAppNotifications: CollectionConfig = {
     defaultColumns: ['title', 'message', 'publishDate'],
     group: 'Notifications',
   },
+  access: {
+    // Allow public read access for published items
+    read: () => true,
+    // Require authentication for create/update/delete
+    create: ({ req: { user } }) => !!user,
+    update: ({ req: { user } }) => !!user,
+    delete: ({ req: { user } }) => !!user,
+  },
   fields: [
     {
       name: 'title',

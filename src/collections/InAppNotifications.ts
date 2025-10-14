@@ -11,7 +11,7 @@ export const InAppNotifications: CollectionConfig = {
   access: {
     // Allow public read access for published items
     read: () => true,
-    // Require authentication for create/update/delete
+    // Require authentication for create/update/delete updated
     create: ({ req: { user } }) => !!user,
     update: ({ req: { user } }) => !!user,
     delete: ({ req: { user } }) => !!user,

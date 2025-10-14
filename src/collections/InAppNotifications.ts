@@ -9,12 +9,10 @@ export const InAppNotifications: CollectionConfig = {
     group: 'Notifications',
   },
   access: {
-    // Allow public read access for published items
     read: () => true,
-    // Require authentication for create/update/delete
-    create: ({ req: { user } }) => !!user,
-    update: ({ req: { user } }) => !!user,
-    delete: ({ req: { user } }) => !!user,
+    create: () => true,
+    update: () => true,
+    delete: () => true,
   },
   fields: [
     {

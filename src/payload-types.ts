@@ -324,6 +324,7 @@ export interface InAppNotification {
   endDate?: string | null;
   schedule?: number | null;
   limmit?: number | null;
+  actionButtonText?: string | null;
   key: string;
   updatedAt: string;
   createdAt: string;
@@ -573,6 +574,7 @@ export interface InAppNotificationsSelect<T extends boolean = true> {
   endDate?: T;
   schedule?: T;
   limmit?: T;
+  actionButtonText?: T;
   key?: T;
   updatedAt?: T;
   createdAt?: T;

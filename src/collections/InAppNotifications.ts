@@ -73,6 +73,13 @@ export const InAppNotifications: CollectionConfig = {
       localized: false,
     },
     {
+      name: 'actionButtonText',
+      label: 'Action Button Text',
+      type: 'text',
+      defaultValue: 'OK',
+      localized: true,
+    },
+    {
       name: 'key',
       type: 'text',
       required: true,
@@ -98,7 +105,7 @@ export const InAppNotifications: CollectionConfig = {
           maxTokens: 500,
         },
         {
-          fields: ['message'],
+          fields: ['message', 'actionButtonText', 'title'],
           guardFlagField: 'autoLocalize',
         },
       ),

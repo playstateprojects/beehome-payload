@@ -177,6 +177,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	FOREIGN KEY (\`image_id\`) REFERENCES \`media\`(\`id\`) ON UPDATE no action ON DELETE set null
   );
   `)
+  // Add missing columns to existing table
+  await db.run(sql`ALTER TABLE \`in_app_notifications\` ADD COLUMN \`end_date\` text;`).catch(() => {})
   await db.run(sql`CREATE INDEX IF NOT EXISTS \`in_app_notifications_image_idx\` ON \`in_app_notifications\` (\`image_id\`);`)
   await db.run(sql`CREATE INDEX IF NOT EXISTS \`in_app_notifications_updated_at_idx\` ON \`in_app_notifications\` (\`updated_at\`);`)
   await db.run(sql`CREATE INDEX IF NOT EXISTS \`in_app_notifications_created_at_idx\` ON \`in_app_notifications\` (\`created_at\`);`)
@@ -190,6 +192,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`in_app_notifications\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
   `)
+  // Add missing columns to existing table
+  await db.run(sql`ALTER TABLE \`in_app_notifications_locales\` ADD COLUMN \`action_button_text\` text DEFAULT 'OK';`).catch(() => {})
   await db.run(sql`CREATE UNIQUE INDEX IF NOT EXISTS \`in_app_notifications_locales_locale_parent_id_unique\` ON \`in_app_notifications_locales\` (\`_locale\`,\`_parent_id\`);`)
   await db.run(sql`CREATE TABLE IF NOT EXISTS \`action_cards\` (
   	\`id\` integer PRIMARY KEY NOT NULL,
@@ -205,6 +209,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	FOREIGN KEY (\`image_id\`) REFERENCES \`media\`(\`id\`) ON UPDATE no action ON DELETE set null
   );
   `)
+  // Add missing columns to existing table
+  await db.run(sql`ALTER TABLE \`action_cards\` ADD COLUMN \`end_date\` text;`).catch(() => {})
+  await db.run(sql`ALTER TABLE \`action_cards\` ADD COLUMN \`multiple_views\` integer;`).catch(() => {})
+  await db.run(sql`ALTER TABLE \`action_cards\` ADD COLUMN \`display_to_all_users\` integer;`).catch(() => {})
   await db.run(sql`CREATE INDEX IF NOT EXISTS \`action_cards_image_idx\` ON \`action_cards\` (\`image_id\`);`)
   await db.run(sql`CREATE INDEX IF NOT EXISTS \`action_cards_updated_at_idx\` ON \`action_cards\` (\`updated_at\`);`)
   await db.run(sql`CREATE INDEX IF NOT EXISTS \`action_cards_created_at_idx\` ON \`action_cards\` (\`created_at\`);`)
@@ -339,6 +347,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	FOREIGN KEY (\`checklist_id\`) REFERENCES \`checklist\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
   `)
+  // Add missing columns to existing table
+  await db.run(sql`ALTER TABLE \`payload_locked_documents_rels\` ADD COLUMN \`in_app_notifications_id\` integer;`).catch(() => {})
+  await db.run(sql`ALTER TABLE \`payload_locked_documents_rels\` ADD COLUMN \`action_cards_id\` integer;`).catch(() => {})
+  await db.run(sql`ALTER TABLE \`payload_locked_documents_rels\` ADD COLUMN \`checklist_id\` integer;`).catch(() => {})
   await db.run(sql`CREATE INDEX IF NOT EXISTS \`payload_locked_documents_rels_order_idx\` ON \`payload_locked_documents_rels\` (\`order\`);`)
   await db.run(sql`CREATE INDEX IF NOT EXISTS \`payload_locked_documents_rels_parent_idx\` ON \`payload_locked_documents_rels\` (\`parent_id\`);`)
   await db.run(sql`CREATE INDEX IF NOT EXISTS \`payload_locked_documents_rels_path_idx\` ON \`payload_locked_documents_rels\` (\`path\`);`)

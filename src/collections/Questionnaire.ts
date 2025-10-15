@@ -175,7 +175,7 @@ export const Questionnaire: CollectionConfig = {
           const localization = req.payload.config.localization
           const defaultLocale = localization ? localization.defaultLocale : 'en'
           const title =
-            (typeof data.title === 'object' ? data.title?.[defaultLocale] : data.title) || ''
+            (typeof data.name === 'object' ? data.name?.[defaultLocale] : data.name) || ''
           if (title) data.slug = slugify(title)
         } else {
           data.slug = slugify(String(data.slug))

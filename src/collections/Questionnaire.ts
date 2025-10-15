@@ -4,8 +4,8 @@ import { slugify } from 'payload/shared'
 export const Questionnaire: CollectionConfig = {
   slug: 'questionnaire',
   admin: {
-    useAsTitle: 'title',
-    defaultColumns: ['title', 'updatedAt'],
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'updatedAt'],
     group: 'Content',
   },
   access: {
@@ -16,10 +16,13 @@ export const Questionnaire: CollectionConfig = {
   },
   fields: [
     {
-      name: 'title',
+      name: 'name',
       type: 'text',
       required: true,
       localized: true,
+      admin: {
+        description: 'This field is used to create the path but is not displayed in the app.',
+      },
     },
     {
       name: 'slug',
@@ -32,12 +35,15 @@ export const Questionnaire: CollectionConfig = {
       },
     },
     {
-      name: 'description',
+      name: 'note',
       type: 'text',
-      localized: true,
+      localized: false,
+      admin: {
+        description: 'This field is not displayed in the app.',
+      },
     },
     {
-      name: 'optionGroups',
+      name: 'questionCards',
       type: 'array',
       label: 'Question Cards',
       admin: { description: 'A question card with a list of options.' },
@@ -51,6 +57,12 @@ export const Questionnaire: CollectionConfig = {
           name: 'description',
           type: 'text',
           localized: true,
+        },
+        {
+          name: 'allowMultiple',
+          type: 'checkbox',
+          defaultValue: true,
+          localized: false,
         },
         {
           name: 'options',

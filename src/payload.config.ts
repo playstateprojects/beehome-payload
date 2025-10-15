@@ -16,7 +16,7 @@ import { Commitments } from './collections/Commitments'
 import Articles from './collections/Articles'
 import { InAppNotifications } from './collections/InAppNotifications'
 import ActionCards from './collections/ActionCards'
-import { Checklist } from './collections/Checklist'
+import { Questionnaire } from './collections/Questionnaire'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -47,7 +47,7 @@ export default buildConfig({
     Articles,
     InAppNotifications,
     ActionCards,
-    Checklist,
+    Questionnaire,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

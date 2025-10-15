@@ -75,7 +75,7 @@ export interface Config {
     articles: Article;
     'in-app-notifications': InAppNotification;
     'action-cards': ActionCard;
-    checklist: Checklist;
+    questionnaire: Questionnaire;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -90,7 +90,7 @@ export interface Config {
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     'in-app-notifications': InAppNotificationsSelect<false> | InAppNotificationsSelect<true>;
     'action-cards': ActionCardsSelect<false> | ActionCardsSelect<true>;
-    checklist: ChecklistSelect<false> | ChecklistSelect<true>;
+    questionnaire: QuestionnaireSelect<false> | QuestionnaireSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -382,9 +382,9 @@ export interface ActionCard {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "checklist".
+ * via the `definition` "questionnaire".
  */
-export interface Checklist {
+export interface Questionnaire {
   id: number;
   title: string;
   /**
@@ -480,8 +480,8 @@ export interface PayloadLockedDocument {
         value: number | ActionCard;
       } | null)
     | ({
-        relationTo: 'checklist';
-        value: number | Checklist;
+        relationTo: 'questionnaire';
+        value: number | Questionnaire;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -666,9 +666,9 @@ export interface ActionCardsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "checklist_select".
+ * via the `definition` "questionnaire_select".
  */
-export interface ChecklistSelect<T extends boolean = true> {
+export interface QuestionnaireSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   description?: T;

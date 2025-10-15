@@ -1,8 +1,8 @@
 import type { CollectionConfig } from 'payload'
 import { slugify } from 'payload/shared'
 
-export const Checklist: CollectionConfig = {
-  slug: 'checklist',
+export const Questionnaire: CollectionConfig = {
+  slug: 'questionnaire',
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'updatedAt'],
@@ -39,7 +39,7 @@ export const Checklist: CollectionConfig = {
     {
       name: 'optionGroups',
       type: 'array',
-      label: 'Option Groups',
+      label: 'Question Cards',
       admin: { description: 'A question card with a list of options.' },
       fields: [
         {

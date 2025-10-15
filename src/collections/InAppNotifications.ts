@@ -35,6 +35,13 @@ export const InAppNotifications: CollectionConfig = {
       localized: false,
     },
     {
+      name: 'actionButtonText',
+      label: 'Action Button Text',
+      type: 'text',
+      defaultValue: 'OK',
+      localized: true,
+    },
+    {
       name: 'publishDate',
       label: 'Publish date',
       type: 'date',
@@ -70,13 +77,7 @@ export const InAppNotifications: CollectionConfig = {
       defaultValue: 999,
       localized: false,
     },
-    {
-      name: 'actionButtonText',
-      label: 'Action Button Text',
-      type: 'text',
-      defaultValue: 'OK',
-      localized: true,
-    },
+
     {
       name: 'key',
       type: 'text',

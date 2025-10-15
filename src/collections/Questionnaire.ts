@@ -125,6 +125,11 @@ export const Questionnaire: CollectionConfig = {
           localized: true,
         },
         {
+          name: 'actionButtonLink',
+          type: 'text',
+          localized: false,
+        },
+        {
           name: 'body',
           type: 'richText',
           localized: true,

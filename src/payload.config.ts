@@ -17,6 +17,7 @@ import Articles from './collections/Articles'
 import { InAppNotifications } from './collections/InAppNotifications'
 import ActionCards from './collections/ActionCards'
 import { Questionnaire } from './collections/Questionnaire'
+import { Badge } from './collections/Badge'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -48,6 +49,7 @@ export default buildConfig({
     InAppNotifications,
     ActionCards,
     Questionnaire,
+    Badge,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

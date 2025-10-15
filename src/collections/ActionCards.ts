@@ -1,16 +1,7 @@
 // src/payload/collections/Articles.ts
 import type { CollectionConfig } from 'payload'
+import { slugify } from 'payload/shared'
 import { aiLocalizeCollection } from '../hooks/aiLocalize'
-
-// Tiny slugify (no external dep)
-const slugify = (s: string) =>
-  s
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-    .slice(0, 120)
 
 export const ActionCards: CollectionConfig = {
   slug: 'action-cards',

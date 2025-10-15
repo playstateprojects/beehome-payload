@@ -76,6 +76,7 @@ export interface Config {
     'in-app-notifications': InAppNotification;
     'action-cards': ActionCard;
     questionnaire: Questionnaire;
+    badges: Badge;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -91,6 +92,7 @@ export interface Config {
     'in-app-notifications': InAppNotificationsSelect<false> | InAppNotificationsSelect<true>;
     'action-cards': ActionCardsSelect<false> | ActionCardsSelect<true>;
     questionnaire: QuestionnaireSelect<false> | QuestionnaireSelect<true>;
+    badges: BadgesSelect<false> | BadgesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -425,6 +427,7 @@ export interface Questionnaire {
         image?: (number | null) | Media;
         title: string;
         actionButton?: string | null;
+        actionButtonLink?: string | null;
         body?: {
           root: {
             type: string;
@@ -444,6 +447,28 @@ export interface Questionnaire {
         id?: string | null;
       }[]
     | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "badges".
+ */
+export interface Badge {
+  id: number;
+  name: string;
+  /**
+   * Auto-filled from Name if left blank.
+   */
+  slug: string;
+  icon?: (number | null) | Media;
+  page: {
+    title: string;
+    description: string;
+    image?: (number | null) | Media;
+    actionButton?: string | null;
+    actionButtonLink?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -489,6 +514,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'questionnaire';
         value: number | Questionnaire;
+      } | null)
+    | ({
+        relationTo: 'badges';
+        value: number | Badge;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -701,9 +730,30 @@ export interface QuestionnaireSelect<T extends boolean = true> {
         image?: T;
         title?: T;
         actionButton?: T;
+        actionButtonLink?: T;
         body?: T;
         uuid?: T;
         id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "badges_select".
+ */
+export interface BadgesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  icon?: T;
+  page?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        actionButton?: T;
+        actionButtonLink?: T;
       };
   updatedAt?: T;
   createdAt?: T;

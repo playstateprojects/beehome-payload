@@ -1,11 +1,12 @@
 // src/payload/collections/Articles.ts
 import type { CollectionConfig } from 'payload'
 import { slugify } from 'payload/shared'
-import { aiLocalizeCollection } from '../hooks/aiLocalize'
+import { localizeDocument } from '../hooks/aiLocalizeService'
 
 export const Articles: CollectionConfig = {
   slug: 'articles',
   labels: { singular: 'Article', plural: 'Articles' },
+  versions: { drafts: { autosave: true } },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'publishDate', 'author', 'reviewStatus', 'updatedAt'],
@@ -13,7 +14,58 @@ export const Articles: CollectionConfig = {
   },
   access: { read: () => true },
 
+  endpoints: [
+    {
+      path: '/:id/localize',
+      method: 'post',
+      handler: async (req) => {
+        const { id } = req.routeParams || {}
+        const payload = req.payload
+        console.log(payload)
+        if (!id) {
+          return Response.json({ success: false, message: 'No document ID provided' })
+        }
+
+        try {
+          const result = await localizeDocument(
+            payload,
+            'articles',
+            id as string,
+            {
+              baseURL: 'https://api.deepseek.com',
+              apiKey: process.env.DEEPSEEK_API_KEY!,
+              model: 'deepseek-chat',
+              temperature: 0.2,
+              maxTokens: 1300,
+            },
+            {
+              fields: ['body', 'intro', 'title', 'actionButton'],
+              // sourceLocale omitted - will auto-detect which locale has the most content
+            },
+          )
+
+          return Response.json(result)
+        } catch (error) {
+          return Response.json({
+            success: false,
+            message: error instanceof Error ? error.message : 'Unknown error',
+          })
+        }
+      },
+    },
+  ],
+
   fields: [
+    // AI Localize Button
+    {
+      name: 'localizeButton',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/components/LocalizeButton#LocalizeButton',
+        },
+      },
+    },
     // Title — localized
     {
       name: 'title',
@@ -110,40 +162,6 @@ export const Articles: CollectionConfig = {
           data.slug = slugify(String(data.slug))
         }
       },
-    ],
-    afterChange: [
-      //   async ({ doc, operation }) => {
-      //     // Optional: fire a webhook to your Cloudflare Worker to invalidate cache
-      //     if (!process.env.OPTIONS_WEBHOOK_URL) return
-      //     try {
-      //       const body = JSON.stringify({
-      //         event: 'space-types.updated',
-      //         operation,
-      //         key: doc.key,
-      //       })
-      //       await fetch(process.env.OPTIONS_WEBHOOK_URL, {
-      //         method: 'POST',
-      //         headers: { 'Content-Type': 'application/json' },
-      //         body,
-      //       })
-      //     } catch (err) {
-      //       console.error('Webhook failed', err)
-      //     }
-      //   },
-      aiLocalizeCollection(
-        {
-          baseURL: 'https://api.deepseek.com', // e.g. https://api.deepseek.com (if OpenAI-compatible)
-          apiKey: process.env.DEEPSEEK_API_KEY!,
-          model: 'deepseek-chat',
-          temperature: 0.2,
-          maxTokens: 1300,
-        },
-        {
-          fields: ['body', 'intro', 'title'], // the localized fields to fill
-          sourceLocale: 'en', // change if your default is different
-          // targetLocales: ['de','fr','it'],       // or omit to use all configured except source
-        },
-      ),
     ],
   },
 }

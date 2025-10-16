@@ -40,16 +40,17 @@ export default buildConfig({
     defaultLocale: 'de', // required
   },
   collections: [
-    Users,
-    Media,
-    PushNotifications,
-    SpaceTypes,
-    Commitments,
     Articles,
     InAppNotifications,
     ActionCards,
     Questionnaire,
     Badge,
+
+    PushNotifications,
+    SpaceTypes,
+    Commitments,
+    Users,
+    Media,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

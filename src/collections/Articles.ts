@@ -55,6 +55,16 @@ export const Articles: CollectionConfig = {
       type: 'richText',
       localized: true,
     },
+    {
+      name: 'actionButton',
+      type: 'text',
+      localized: true,
+    },
+    {
+      name: 'actionButtonLink',
+      type: 'text',
+      localized: false,
+    },
 
     // Publish date — NOT localized
     {

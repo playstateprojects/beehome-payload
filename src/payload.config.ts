@@ -29,6 +29,7 @@ const cloudflare =
     : await getCloudflareContext({ async: true })
 
 export default buildConfig({
+  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'https://cms.beehome.net',
   admin: {
     user: Users.slug,
     importMap: {

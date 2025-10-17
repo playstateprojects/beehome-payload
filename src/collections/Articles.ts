@@ -2,10 +2,14 @@
 import type { CollectionConfig } from 'payload'
 import { slugify } from 'payload/shared'
 import { aiLocalizeCollection } from '../hooks/aiLocalize'
+import { FixedToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
+import { BlocksFeature } from '@payloadcms/richtext-lexical'
+import { ProductRecommendations } from '../blocks/ProductRecommendations'
 
 export const Articles: CollectionConfig = {
   slug: 'articles',
   labels: { singular: 'Article', plural: 'Articles' },
+  versions: { drafts: true },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'publishDate', 'author', 'reviewStatus', 'updatedAt'],
@@ -46,6 +50,17 @@ export const Articles: CollectionConfig = {
       label: 'Intro / Teaser',
       type: 'richText',
       localized: true,
+      editor: lexicalEditor({
+        features: ({ defaultFeatures }) => [
+          ...defaultFeatures.filter(
+            (feature) => feature.key !== 'toolbarInline' && feature.key !== 'floatingSelectToolbar',
+          ),
+          FixedToolbarFeature(),
+          BlocksFeature({
+            blocks: [ProductRecommendations],
+          }),
+        ],
+      }),
     },
 
     // Body — localized rich text
@@ -54,6 +69,17 @@ export const Articles: CollectionConfig = {
       label: 'Body',
       type: 'richText',
       localized: true,
+      editor: lexicalEditor({
+        features: ({ defaultFeatures }) => [
+          ...defaultFeatures.filter(
+            (feature) => feature.key !== 'toolbarInline' && feature.key !== 'floatingSelectToolbar',
+          ),
+          FixedToolbarFeature(),
+          BlocksFeature({
+            blocks: [ProductRecommendations],
+          }),
+        ],
+      }),
     },
     {
       name: 'actionButton',

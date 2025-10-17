@@ -1,6 +1,7 @@
 // storage-adapter-import-placeholder
 import { sqliteD1Adapter } from '@payloadcms/db-d1-sqlite' // database-adapter-import
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { BlocksFeature } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -18,6 +19,7 @@ import { InAppNotifications } from './collections/InAppNotifications'
 import ActionCards from './collections/ActionCards'
 import { Questionnaire } from './collections/Questionnaire'
 import { Badge } from './collections/Badge'
+import { ProductRecommendations } from './blocks/ProductRecommendations'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -53,7 +55,14 @@ export default buildConfig({
     Users,
     Media,
   ],
-  editor: lexicalEditor(),
+  editor: lexicalEditor({
+    features: ({ defaultFeatures }) => [
+      ...defaultFeatures,
+      BlocksFeature({
+        blocks: [ProductRecommendations],
+      }),
+    ],
+  }),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

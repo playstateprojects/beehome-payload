@@ -45,7 +45,6 @@ export const InAppNotifications: CollectionConfig = {
       name: 'actionButtonLink',
       label: 'Action Button Link',
       type: 'text',
-      defaultValue: 'OK',
       localized: true,
     },
     {

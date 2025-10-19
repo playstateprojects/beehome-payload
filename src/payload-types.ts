@@ -207,6 +207,7 @@ export interface InAppNotification {
   message: string;
   image?: (number | null) | Media;
   actionButtonText?: string | null;
+  actionButtonLink?: string | null;
   /**
    * Will not be displayed before this date
    */
@@ -592,6 +593,7 @@ export interface InAppNotificationsSelect<T extends boolean = true> {
   message?: T;
   image?: T;
   actionButtonText?: T;
+  actionButtonLink?: T;
   publishDate?: T;
   endDate?: T;
   schedule?: T;

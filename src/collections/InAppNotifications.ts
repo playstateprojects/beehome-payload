@@ -42,6 +42,13 @@ export const InAppNotifications: CollectionConfig = {
       localized: true,
     },
     {
+      name: 'actionButtonLink',
+      label: 'Action Button Link',
+      type: 'text',
+      defaultValue: 'OK',
+      localized: true,
+    },
+    {
       name: 'publishDate',
       label: 'Publish date',
       type: 'date',
@@ -56,7 +63,11 @@ export const InAppNotifications: CollectionConfig = {
       name: 'endDate',
       label: 'End Date',
       type: 'date',
-      defaultValue: () => new Date().toISOString(),
+      defaultValue: () => {
+        const date = new Date()
+        date.setMonth(date.getMonth() + 1)
+        return date.toISOString()
+      },
       admin: {
         date: { pickerAppearance: 'dayAndTime' },
         description: 'Will not be displayed after this date',

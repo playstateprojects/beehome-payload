@@ -8,7 +8,7 @@ export const SpaceTypes: CollectionConfig = {
     plural: 'Space Types',
   },
   admin: {
-    useAsTitle: 'key',
+    useAsTitle: 'label',
     defaultColumns: ['key', 'label', 'updatedAt'],
     group: 'Reference Data',
   },
@@ -19,13 +19,13 @@ export const SpaceTypes: CollectionConfig = {
 
   fields: [
     {
-      name: 'key',
+      name: 'slug',
       type: 'text',
       required: true,
       unique: true,
       localized: false,
       admin: {
-        description: 'Machine key (e.g. balcony, garden) — must match D1.space_types.key',
+        description: 'Machine identifier (e.g. balcony, garden) — must match D1.space_types.key',
       },
     },
     {

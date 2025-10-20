@@ -388,9 +388,9 @@ export interface PushNotification {
 export interface SpaceType {
   id: number;
   /**
-   * Machine key (e.g. balcony, garden) — must match D1.space_types.key
+   * Machine identifier (e.g. balcony, garden) — must match D1.space_types.key
    */
-  key: string;
+  slug: string;
   /**
    * Human-readable name (localized).
    */
@@ -700,7 +700,7 @@ export interface PushNotificationsSelect<T extends boolean = true> {
  * via the `definition` "space-types_select".
  */
 export interface SpaceTypesSelect<T extends boolean = true> {
-  key?: T;
+  slug?: T;
   label?: T;
   description?: T;
   sort?: T;

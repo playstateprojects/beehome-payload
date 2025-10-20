@@ -374,6 +374,10 @@ export interface PushNotification {
   schedule?: number | null;
   limmit?: number | null;
   key: string;
+  /**
+   * when checked the message will be sent to all users of the app.
+   */
+  allUsers?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -687,6 +691,7 @@ export interface PushNotificationsSelect<T extends boolean = true> {
   schedule?: T;
   limmit?: T;
   key?: T;
+  allUsers?: T;
   updatedAt?: T;
   createdAt?: T;
 }

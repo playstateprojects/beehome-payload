@@ -55,6 +55,18 @@ export const PushNotifications: CollectionConfig = {
       type: 'text',
       required: true,
       localized: false,
+      admin: {
+        hidden: true,
+      },
+    },
+    {
+      name: 'allUsers',
+      type: 'checkbox',
+      localized: false,
+      label: 'Send to All Users',
+      admin: {
+        description: 'when checked the message will be sent to all users of the app.',
+      },
     },
   ],
   hooks: {

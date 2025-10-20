@@ -51,7 +51,7 @@ export const PushNotifications: CollectionConfig = {
       localized: false,
     },
     {
-      name: 'key',
+      name: 'slug',
       type: 'text',
       required: true,
       localized: false,

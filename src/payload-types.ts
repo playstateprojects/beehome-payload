@@ -373,7 +373,7 @@ export interface PushNotification {
   publishDate?: string | null;
   schedule?: number | null;
   limmit?: number | null;
-  key: string;
+  slug: string;
   /**
    * when checked the message will be sent to all users of the app.
    */
@@ -690,7 +690,7 @@ export interface PushNotificationsSelect<T extends boolean = true> {
   publishDate?: T;
   schedule?: T;
   limmit?: T;
-  key?: T;
+  slug?: T;
   allUsers?: T;
   updatedAt?: T;
   createdAt?: T;

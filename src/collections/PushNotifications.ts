@@ -1,5 +1,6 @@
 import { aiLocalizeCollection } from '@/hooks/aiLocalize'
 import type { CollectionConfig } from 'payload'
+import { slugify } from 'payload/shared'
 
 export const PushNotifications: CollectionConfig = {
   slug: 'push-notifications',
@@ -73,6 +74,18 @@ export const PushNotifications: CollectionConfig = {
     beforeValidate: [
       ({ data }) => {
         if (!data.key) data.key = crypto.randomUUID()
+      },
+      ({ data, req }) => {
+        if (!data) return
+        if (!data.slug || String(data.slug).trim() === '') {
+          const localization = req.payload.config.localization
+          const defaultLocale = localization ? localization.defaultLocale : 'en'
+          const title =
+            (typeof data.title === 'object' ? data.title?.[defaultLocale] : data.title) || ''
+          if (title) data.slug = slugify(title)
+        } else {
+          data.slug = slugify(String(data.slug))
+        }
       },
     ],
     afterChange: [

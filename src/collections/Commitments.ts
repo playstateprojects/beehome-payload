@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { aiLocalizeCollection } from '../hooks/aiLocalize'
+import { slugify } from 'payload/shared'
 
 export const Commitments: CollectionConfig = {
   slug: 'commitments',
@@ -18,16 +19,6 @@ export const Commitments: CollectionConfig = {
   },
 
   fields: [
-    {
-      name: 'slug',
-      type: 'text',
-      required: true,
-      unique: true,
-      localized: false,
-      admin: {
-        description: 'Machine key (e.g. no_pesticides, plant_native_flowers)',
-      },
-    },
     {
       name: 'title',
       type: 'text',
@@ -79,13 +70,45 @@ export const Commitments: CollectionConfig = {
       hasMany: true,
       required: true,
       localized: false,
+      defaultValue: async ({ req }) => {
+        const spaceTypes = await req.payload.find({
+          collection: 'space-types',
+          limit: 0,
+          pagination: false,
+        })
+        return spaceTypes.docs.map((doc) => doc.id)
+      },
       admin: {
         description: 'Space types this commitment applies to',
+      },
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
+      localized: false,
+      admin: {
+        description: 'Machine key (e.g. no_pesticides, plant_native_flowers)',
       },
     },
   ],
 
   hooks: {
+    beforeValidate: [
+      ({ data, req }) => {
+        if (!data) return
+        if (!data.slug || String(data.slug).trim() === '') {
+          const localization = req.payload.config.localization
+          const defaultLocale = localization ? localization.defaultLocale : 'en'
+          const title =
+            (typeof data.title === 'object' ? data.title?.[defaultLocale] : data.title) || ''
+          if (title) data.slug = slugify(title)
+        } else {
+          data.slug = slugify(String(data.slug))
+        }
+      },
+    ],
     afterChange: [
       aiLocalizeCollection(
         {

@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { aiLocalizeCollection } from '../hooks/aiLocalize'
+import { slugify } from 'payload/shared'
 
 export const SpaceTypes: CollectionConfig = {
   slug: 'space-types',
@@ -19,22 +20,22 @@ export const SpaceTypes: CollectionConfig = {
 
   fields: [
     {
-      name: 'slug',
-      type: 'text',
-      required: true,
-      unique: true,
-      localized: false,
-      admin: {
-        description: 'Machine identifier (e.g. balcony, garden) — must match D1.space_types.key',
-      },
-    },
-    {
       name: 'label',
       type: 'text',
       required: true,
       localized: true,
       admin: {
         description: 'Human-readable name (localized).',
+      },
+    },
+    {
+      name: 'defaultImage',
+      label: 'Default Image',
+      type: 'upload',
+      relationTo: 'media', // ensure you have a Media collection with uploads enabled
+      localized: false,
+      admin: {
+        description: 'The default image to display if the user has not yet uploaded an image.',
       },
     },
     {
@@ -54,9 +55,33 @@ export const SpaceTypes: CollectionConfig = {
       defaultValue: true,
       localized: false,
     },
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
+      localized: false,
+      admin: {
+        description: 'Machine identifier (e.g. balcony, garden) — must match D1.space_types.key',
+      },
+    },
   ],
 
   hooks: {
+    beforeValidate: [
+      ({ data, req }) => {
+        if (!data) return
+        if (!data.slug || String(data.slug).trim() === '') {
+          const localization = req.payload.config.localization
+          const defaultLocale = localization ? localization.defaultLocale : 'en'
+          const label =
+            (typeof data.label === 'object' ? data.label?.[defaultLocale] : data.label) || ''
+          if (label) data.slug = slugify(label)
+        } else {
+          data.slug = slugify(String(data.slug))
+        }
+      },
+    ],
     afterChange: [
       //   async ({ doc, operation }) => {
       //     // Optional: fire a webhook to your Cloudflare Worker to invalidate cache

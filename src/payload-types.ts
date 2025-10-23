@@ -420,6 +420,10 @@ export interface SpaceType {
    * The default image to display if the user has not yet uploaded an image.
    */
   defaultImage?: (number | null) | Media;
+  /**
+   * Single emoji character (optional)
+   */
+  emoji?: string | null;
   description?: string | null;
   sort?: number | null;
   active?: boolean | null;
@@ -751,6 +755,7 @@ export interface SpaceTypesSelect<T extends boolean = true> {
   commitments?: T;
   label?: T;
   defaultImage?: T;
+  emoji?: T;
   description?: T;
   sort?: T;
   active?: T;

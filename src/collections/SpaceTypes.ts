@@ -48,6 +48,24 @@ export const SpaceTypes: CollectionConfig = {
       },
     },
     {
+      name: 'emoji',
+      type: 'text',
+      localized: false,
+      required: false,
+      admin: {
+        description: 'Single emoji character (optional)',
+      },
+      validate: (value: string) => {
+        if (!value) return true // optional field
+        // Regex to match a single emoji (including multi-codepoint emojis)
+        const emojiRegex = /^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)$/u
+        if (!emojiRegex.test(value)) {
+          return 'Please enter a valid emoji character'
+        }
+        return true
+      },
+    },
+    {
       name: 'description',
       type: 'textarea',
       localized: true,

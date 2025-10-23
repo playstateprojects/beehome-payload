@@ -20,6 +20,15 @@ export const SpaceTypes: CollectionConfig = {
 
   fields: [
     {
+      name: 'commitments',
+      type: 'join',
+      collection: 'commitments',
+      on: 'space_types',
+      admin: {
+        description: 'Commitments associated with this space type',
+      },
+    },
+    {
       name: 'label',
       type: 'text',
       required: true,

@@ -82,7 +82,11 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    'space-types': {
+      commitments: 'commitments';
+    };
+  };
   collectionsSelect: {
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     'in-app-notifications': InAppNotificationsSelect<false> | InAppNotificationsSelect<true>;
@@ -400,6 +404,14 @@ export interface SpaceReview {
  */
 export interface SpaceType {
   id: number;
+  /**
+   * Commitments associated with this space type
+   */
+  commitments?: {
+    docs?: (number | Commitment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   /**
    * Human-readable name (localized).
    */
@@ -736,6 +748,7 @@ export interface PushNotificationsSelect<T extends boolean = true> {
  * via the `definition` "space-types_select".
  */
 export interface SpaceTypesSelect<T extends boolean = true> {
+  commitments?: T;
   label?: T;
   defaultImage?: T;
   description?: T;

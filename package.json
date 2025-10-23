@@ -22,7 +22,8 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" pnpm exec playwright test",
-    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
+    "backup:d1": "npx wrangler d1 export beehome-cms --remote --output ./backups/backup-$(date +%F-%H%M%S).sql && npx aws s3 cp ./backups/backup-$(ls -t ./backups | head -1) s3://YOUR_R2_BUCKET/d1/beehome-cms/ --endpoint-url https://<YOUR_ACCOUNT_ID>.r2.cloudflarestorage.com"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.6.5",

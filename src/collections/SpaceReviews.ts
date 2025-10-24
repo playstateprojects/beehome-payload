@@ -38,7 +38,7 @@ export const SpaceReviews: CollectionConfig = {
       type: 'relationship',
       relationTo: 'space-types',
       hasMany: true,
-      required: true,
+      required: false,
       localized: false,
 
       admin: {
@@ -50,7 +50,7 @@ export const SpaceReviews: CollectionConfig = {
       type: 'relationship',
       relationTo: 'commitments',
       hasMany: true,
-      required: true,
+      required: false,
       localized: false,
 
       admin: {
@@ -62,7 +62,7 @@ export const SpaceReviews: CollectionConfig = {
       type: 'relationship',
       relationTo: 'commitments',
       hasMany: true,
-      required: true,
+      required: false,
       localized: false,
 
       admin: {

@@ -379,17 +379,25 @@ export interface SpaceReview {
   label: string;
   description?: string | null;
   /**
-   * This message is aplicable to these space types.
+   * This message will only be shown to users with these space types.
    */
   includedSpaceTypes: (number | SpaceType)[];
   /**
-   * This message is aplicable to these commitments
+   * This message will only be shown to users who have these commitments.
    */
   includedCommitments: (number | Commitment)[];
   /**
-   * Total number of commitments
+   * This message will only be shown to users who do not have these commitments.
    */
-  totalCommitments?: number | null;
+  excludedCommitments: (number | Commitment)[];
+  /**
+   * Total number of commitments required to see this message
+   */
+  minCommitments?: number | null;
+  /**
+   * The Maximum number of commitments required to see this message
+   */
+  maxCommitments?: number | null;
   active?: boolean | null;
   /**
    * Machine identifier — must match D1.space_reviews.key
@@ -725,7 +733,9 @@ export interface SpaceReviewsSelect<T extends boolean = true> {
   description?: T;
   includedSpaceTypes?: T;
   includedCommitments?: T;
-  totalCommitments?: T;
+  excludedCommitments?: T;
+  minCommitments?: T;
+  maxCommitments?: T;
   active?: T;
   slug?: T;
   updatedAt?: T;

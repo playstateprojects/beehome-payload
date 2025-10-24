@@ -40,16 +40,9 @@ export const SpaceReviews: CollectionConfig = {
       hasMany: true,
       required: true,
       localized: false,
-      defaultValue: async ({ req }) => {
-        const spaceTypes = await req.payload.find({
-          collection: 'space-types',
-          limit: 0,
-          pagination: false,
-        })
-        return spaceTypes.docs.map((doc) => doc.id)
-      },
+
       admin: {
-        description: 'This message is aplicable to these space types.',
+        description: 'This message will only be shown to users with these space types.',
       },
     },
     {
@@ -59,25 +52,39 @@ export const SpaceReviews: CollectionConfig = {
       hasMany: true,
       required: true,
       localized: false,
-      defaultValue: async ({ req }) => {
-        const commitments = await req.payload.find({
-          collection: 'commitments',
-          limit: 0,
-          pagination: false,
-        })
-        return commitments.docs.map((doc) => doc.id)
-      },
+
       admin: {
-        description: 'This message is aplicable to these commitments',
+        description: 'This message will only be shown to users who have these commitments.',
       },
     },
     {
-      name: 'totalCommitments',
+      name: 'excludedCommitments',
+      type: 'relationship',
+      relationTo: 'commitments',
+      hasMany: true,
+      required: true,
+      localized: false,
+
+      admin: {
+        description: 'This message will only be shown to users who do not have these commitments.',
+      },
+    },
+    {
+      name: 'minCommitments',
       type: 'number',
       required: false,
       localized: false,
       admin: {
-        description: 'Total number of commitments',
+        description: 'Total number of commitments required to see this message',
+      },
+    },
+    {
+      name: 'maxCommitments',
+      type: 'number',
+      required: false,
+      localized: false,
+      admin: {
+        description: 'The Maximum number of commitments required to see this message',
       },
     },
     {

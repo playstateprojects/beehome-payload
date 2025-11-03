@@ -91,7 +91,7 @@ export const PushNotifications: CollectionConfig = {
             },
             {
               type: 'collapsible',
-              label: 'Advanced Scheduling',
+              label: 'Advanced Scheduling.',
               admin: {
                 initCollapsed: true,
                 condition: (data) => !data?.allUsers,

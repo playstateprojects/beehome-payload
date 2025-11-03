@@ -512,6 +512,10 @@ export interface PushNotification {
    */
   publishDate?: string | null;
   /**
+   * When checked, the message will be sent to all users of the app. All conditional checks will be skipped and all users will receive the notification.
+   */
+  allUsers?: boolean | null;
+  /**
    * Select the months that this notification is valid for.
    */
   validMonths?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')[] | null;
@@ -523,10 +527,6 @@ export interface PushNotification {
    * Number of times a user can receive this message. When set to 1, the user will never be sent this notification again. Please note this does not include 'reads'. In other words, if sends is set to 8, the user will receive the message a maximum of 8 times, but only if they don't open it.
    */
   limmit?: number | null;
-  /**
-   * When checked, the message will be sent to all users of the app. All conditional checks will be skipped and all users will receive the notification.
-   */
-  allUsers?: boolean | null;
   slug: string;
   updatedAt: string;
   createdAt: string;
@@ -794,10 +794,10 @@ export interface PushNotificationsSelect<T extends boolean = true> {
   tags?: T;
   conditionNotes?: T;
   publishDate?: T;
+  allUsers?: T;
   validMonths?: T;
   schedule?: T;
   limmit?: T;
-  allUsers?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;

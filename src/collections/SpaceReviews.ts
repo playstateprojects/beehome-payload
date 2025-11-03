@@ -40,7 +40,14 @@ export const SpaceReviews: CollectionConfig = {
       hasMany: true,
       required: false,
       localized: false,
-
+      defaultValue: async ({ req }) => {
+        const spaceTypes = await req.payload.find({
+          collection: 'space-types',
+          limit: 0,
+          pagination: false,
+        })
+        return spaceTypes.docs.map((doc) => doc.id)
+      },
       admin: {
         description: 'This message will only be shown to users with these space types.',
       },

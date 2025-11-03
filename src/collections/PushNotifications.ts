@@ -6,50 +6,130 @@ export const PushNotifications: CollectionConfig = {
   slug: 'push-notifications',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'message', 'publishDate'],
+    defaultColumns: ['title', 'message', 'publishDate', 'tags'],
     group: 'Notifications',
   },
   fields: [
     {
-      name: 'title',
-      type: 'text',
-      required: true,
-      localized: true,
-    },
-    {
-      name: 'message',
-      type: 'text',
-      required: true,
-      localized: true,
-    },
-    {
-      name: 'image',
-      label: 'Hero image',
-      type: 'upload',
-      relationTo: 'media', // ensure you have a Media collection with uploads enabled
-      localized: false,
-    },
-    {
-      name: 'publishDate',
-      label: 'Publish date',
-      type: 'date',
-      defaultValue: () => new Date().toISOString(),
-      admin: { date: { pickerAppearance: 'dayAndTime' } },
-      localized: false,
-    },
-    {
-      name: 'schedule',
-      label: 'Repeat after',
-      type: 'number',
-      defaultValue: 365,
-      localized: false,
-    },
-    {
-      name: 'limmit',
-      label: 'Number of times a user can recieve this message.',
-      type: 'number',
-      defaultValue: 999,
-      localized: false,
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Content',
+          fields: [
+            {
+              name: 'title',
+              type: 'text',
+              required: true,
+              localized: true,
+            },
+            {
+              name: 'message',
+              type: 'text',
+              required: true,
+              localized: true,
+            },
+            {
+              name: 'image',
+              label: 'Hero image',
+              type: 'upload',
+              relationTo: 'media', // ensure you have a Media collection with uploads enabled
+              localized: false,
+            },
+            {
+              name: 'tags',
+              label: 'Tags',
+              type: 'text',
+              hasMany: true,
+              localized: false,
+              admin: {
+                description: 'Add tags to categorize this notification.',
+              },
+            },
+            {
+              name: 'conditionNotes',
+              label: 'Condition Notes',
+              type: 'textarea',
+              localized: false,
+              admin: {
+                description:
+                  'This note will not be displayed or used in the application but is a note for future reference as to the conditions under which this notification will be selected.',
+              },
+            },
+          ],
+        },
+        {
+          label: 'Scheduling',
+          fields: [
+            {
+              name: 'publishDate',
+              label: 'Publish date',
+              type: 'date',
+              defaultValue: () => new Date().toISOString(),
+              admin: {
+                date: { pickerAppearance: 'dayAndTime' },
+                description: 'The notification will only be sent once this date is reached.',
+              },
+              localized: false,
+            },
+            {
+              name: 'validMonths',
+              label: 'Valid Months',
+              type: 'select',
+              hasMany: true,
+              localized: false,
+              admin: {
+                description: 'Select the months that this notification is valid for.',
+              },
+              options: [
+                { label: 'January', value: '1' },
+                { label: 'February', value: '2' },
+                { label: 'March', value: '3' },
+                { label: 'April', value: '4' },
+                { label: 'May', value: '5' },
+                { label: 'June', value: '6' },
+                { label: 'July', value: '7' },
+                { label: 'August', value: '8' },
+                { label: 'September', value: '9' },
+                { label: 'October', value: '10' },
+                { label: 'November', value: '11' },
+                { label: 'December', value: '12' },
+              ],
+            },
+            {
+              name: 'schedule',
+              label: 'Repeat after',
+              type: 'number',
+              defaultValue: 365,
+              localized: false,
+              admin: {
+                description:
+                  'The number of days between repeat sends. If set to 365, the user would receive the same message again next year.',
+              },
+            },
+            {
+              name: 'limmit',
+              label: 'Max number of possible sends',
+              type: 'number',
+              defaultValue: 1,
+              localized: false,
+              admin: {
+                description:
+                  "Number of times a user can receive this message. When set to 1, the user will never be sent this notification again. Please note this does not include 'reads'. In other words, if sends is set to 8, the user will receive the message a maximum of 8 times, but only if they don't open it.",
+              },
+            },
+            {
+              name: 'allUsers',
+              type: 'checkbox',
+              localized: false,
+              label: 'Send to All Users',
+              admin: {
+                description:
+                  'When checked, the message will be sent to all users of the app. All conditional checks will be skipped and all users will receive the notification.',
+              },
+            },
+          ],
+        },
+      ],
     },
     {
       name: 'slug',
@@ -58,15 +138,6 @@ export const PushNotifications: CollectionConfig = {
       localized: false,
       admin: {
         hidden: true,
-      },
-    },
-    {
-      name: 'allUsers',
-      type: 'checkbox',
-      localized: false,
-      label: 'Send to All Users',
-      admin: {
-        description: 'when checked the message will be sent to all users of the app.',
       },
     },
   ],

@@ -215,14 +215,32 @@ export interface InAppNotification {
   actionButtonText?: string | null;
   actionButtonLink?: string | null;
   /**
-   * Will not be displayed before this date
+   * Add tags to categorize this notification.
+   */
+  tags?: string[] | null;
+  /**
+   * This note will not be displayed or used in the application but is a note for future reference as to the conditions under which this notification will be selected.
+   */
+  conditionNotes?: string | null;
+  /**
+   * The notification will only be displayed once this date is reached.
    */
   publishDate?: string | null;
   /**
-   * Will not be displayed after this date
+   * The notification will not be displayed after this date.
    */
   endDate?: string | null;
+  /**
+   * The number of days between repeat displays. If set to 365, the user would receive the same message again next year.
+   */
   schedule?: number | null;
+  /**
+   * Select the months that this notification is valid for.
+   */
+  validMonths?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')[] | null;
+  /**
+   * Number of times a user can receive this message. When set to 1, the user will never see this notification again after the first display.
+   */
   limmit?: number | null;
   key: string;
   updatedAt: string;
@@ -381,15 +399,15 @@ export interface SpaceReview {
   /**
    * This message will only be shown to users with these space types.
    */
-  includedSpaceTypes: (number | SpaceType)[];
+  includedSpaceTypes?: (number | SpaceType)[] | null;
   /**
    * This message will only be shown to users who have these commitments.
    */
-  includedCommitments: (number | Commitment)[];
+  includedCommitments?: (number | Commitment)[] | null;
   /**
    * This message will only be shown to users who do not have these commitments.
    */
-  excludedCommitments: (number | Commitment)[];
+  excludedCommitments?: (number | Commitment)[] | null;
   /**
    * Total number of commitments required to see this message
    */
@@ -481,14 +499,35 @@ export interface PushNotification {
   title: string;
   message: string;
   image?: (number | null) | Media;
-  publishDate?: string | null;
-  schedule?: number | null;
-  limmit?: number | null;
-  slug: string;
   /**
-   * when checked the message will be sent to all users of the app.
+   * Add tags to categorize this notification.
+   */
+  tags?: string[] | null;
+  /**
+   * This note will not be displayed or used in the application but is a note for future reference as to the conditions under which this notification will be selected.
+   */
+  conditionNotes?: string | null;
+  /**
+   * The notification will only be sent once this date is reached.
+   */
+  publishDate?: string | null;
+  /**
+   * Select the months that this notification is valid for.
+   */
+  validMonths?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')[] | null;
+  /**
+   * The number of days between repeat sends. If set to 365, the user would receive the same message again next year.
+   */
+  schedule?: number | null;
+  /**
+   * Number of times a user can receive this message. When set to 1, the user will never be sent this notification again. Please note this does not include 'reads'. In other words, if sends is set to 8, the user will receive the message a maximum of 8 times, but only if they don't open it.
+   */
+  limmit?: number | null;
+  /**
+   * When checked, the message will be sent to all users of the app. All conditional checks will be skipped and all users will receive the notification.
    */
   allUsers?: boolean | null;
+  slug: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -639,9 +678,12 @@ export interface InAppNotificationsSelect<T extends boolean = true> {
   image?: T;
   actionButtonText?: T;
   actionButtonLink?: T;
+  tags?: T;
+  conditionNotes?: T;
   publishDate?: T;
   endDate?: T;
   schedule?: T;
+  validMonths?: T;
   limmit?: T;
   key?: T;
   updatedAt?: T;
@@ -749,11 +791,14 @@ export interface PushNotificationsSelect<T extends boolean = true> {
   title?: T;
   message?: T;
   image?: T;
+  tags?: T;
+  conditionNotes?: T;
   publishDate?: T;
+  validMonths?: T;
   schedule?: T;
   limmit?: T;
-  slug?: T;
   allUsers?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -69,9 +69,6 @@ export const InAppNotifications: CollectionConfig = {
                   admin: {
                     width: '50%',
                     placeholder: 'e.g., /guides/spring-care',
-                    condition: (data, siblingData) => {
-                      return siblingData?.actionButtonText && siblingData.actionButtonText !== 'OK'
-                    },
                   },
                 },
               ],

@@ -41,6 +41,17 @@ export const PushNotifications: CollectionConfig = {
               },
             },
             {
+              name: 'deepLink',
+              type: 'text',
+              required: false,
+              localized: false,
+              admin: {
+                placeholder: 'mybeehome://article/slug',
+                description:
+                  'To link to article use mybeehome://article/article-slug. To link to a questionnaire use mybeehome://questionnaire/questionnaire-slug',
+              },
+            },
+            {
               name: 'image',
               label: 'Hero image',
               type: 'upload',
@@ -100,7 +111,6 @@ export const PushNotifications: CollectionConfig = {
               label: 'Advanced Scheduling.',
               admin: {
                 initCollapsed: true,
-                condition: (data) => !data?.allUsers,
               },
               fields: [
                 {

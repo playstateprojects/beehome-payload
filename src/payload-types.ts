@@ -498,6 +498,10 @@ export interface PushNotification {
   id: number;
   title: string;
   message: string;
+  /**
+   * To link to article use mybeehome://article/article-slug. To link to a questionnaire use mybeehome://questionnaire/questionnaire-slug
+   */
+  deepLink?: string | null;
   image?: (number | null) | Media;
   /**
    * Add tags to categorize this notification.
@@ -790,6 +794,7 @@ export interface SpaceReviewsSelect<T extends boolean = true> {
 export interface PushNotificationsSelect<T extends boolean = true> {
   title?: T;
   message?: T;
+  deepLink?: T;
   image?: T;
   tags?: T;
   conditionNotes?: T;

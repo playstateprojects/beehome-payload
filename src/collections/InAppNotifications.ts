@@ -27,7 +27,7 @@ export const InAppNotifications: CollectionConfig = {
               required: true,
               localized: true,
               admin: {
-                placeholder: 'e.g., Spring Beekeeping Tips',
+                placeholder: 'e.g., Spring Gardening tips',
               },
             },
             {
@@ -36,7 +36,8 @@ export const InAppNotifications: CollectionConfig = {
               required: true,
               localized: true,
               admin: {
-                placeholder: 'e.g., Check your hive for signs of swarming this season',
+                placeholder:
+                  "e.g., What to plant now to ensure there's plenty of food for summer bees",
               },
             },
             {
@@ -83,7 +84,7 @@ export const InAppNotifications: CollectionConfig = {
               localized: false,
               admin: {
                 description: 'Add tags to categorize this notification.',
-                placeholder: 'e.g., seasonal, swarm-prevention, beginner',
+                placeholder: 'e.g., spring, garden, beginner',
               },
             },
             {
@@ -94,7 +95,7 @@ export const InAppNotifications: CollectionConfig = {
               admin: {
                 description:
                   'This note will not be displayed or used in the application but is a note for future reference as to the conditions under which this notification will be selected.',
-                placeholder: 'e.g., Show to users who have registered their first hive',
+                placeholder: 'e.g., Show to users who have registered their first beehome',
               },
             },
           ],

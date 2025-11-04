@@ -22,7 +22,7 @@ export const PushNotifications: CollectionConfig = {
               required: true,
               localized: true,
               admin: {
-                placeholder: 'e.g., Spring Beekeeping Tips',
+                placeholder: 'e.g., Spring Beehome Tips',
               },
             },
             {
@@ -31,7 +31,7 @@ export const PushNotifications: CollectionConfig = {
               required: true,
               localized: true,
               admin: {
-                placeholder: 'e.g., Check your hive for signs of swarming this season',
+                placeholder: 'e.g., Check your beehome for pests',
               },
             },
             {
@@ -60,7 +60,7 @@ export const PushNotifications: CollectionConfig = {
               admin: {
                 description:
                   'This note will not be displayed or used in the application but is a note for future reference as to the conditions under which this notification will be selected.',
-                placeholder: 'e.g., Show to users who have registered their first hive',
+                placeholder: 'e.g., Show to users who have registered their first beehome',
               },
             },
           ],

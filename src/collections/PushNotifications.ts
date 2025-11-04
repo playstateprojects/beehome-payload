@@ -9,6 +9,12 @@ export const PushNotifications: CollectionConfig = {
     defaultColumns: ['title', 'message', 'publishDate', 'tags'],
     group: 'Notifications',
   },
+  access: {
+    read: () => true,
+    create: () => true,
+    update: () => true,
+    delete: () => true,
+  },
   fields: [
     {
       type: 'tabs',
@@ -189,8 +195,8 @@ export const PushNotifications: CollectionConfig = {
           maxTokens: 500,
         },
         {
-          fields: ['message'],
-          guardFlagField: 'autoLocalize',
+          fields: ['title', 'message'],
+          sourceLocale: 'en',
         },
       ),
     ],

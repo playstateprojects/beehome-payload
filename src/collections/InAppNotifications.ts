@@ -213,8 +213,8 @@ export const InAppNotifications: CollectionConfig = {
           maxTokens: 500,
         },
         {
-          fields: ['message', 'actionButtonText', 'title'],
-          guardFlagField: 'autoLocalize',
+          fields: ['title', 'message', 'actionButtonText'],
+          sourceLocale: 'en',
         },
       ),
     ],

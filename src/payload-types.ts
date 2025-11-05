@@ -141,7 +141,6 @@ export interface UserAuthOperations {
  */
 export interface Article {
   id: number;
-  _order?: string | null;
   title: string;
   /**
    * Auto-filled from Title if left blank.
@@ -663,7 +662,6 @@ export interface PayloadMigration {
  * via the `definition` "articles_select".
  */
 export interface ArticlesSelect<T extends boolean = true> {
-  _order?: T;
   title?: T;
   slug?: T;
   tagline?: T;

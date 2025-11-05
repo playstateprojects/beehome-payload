@@ -174,7 +174,7 @@ export const Articles: CollectionConfig = {
           maxTokens: 1300,
         },
         {
-          fields: ['body', 'intro', 'title', 'tagline'], // the localized fields to fill
+          fields: ['body', 'intro', 'title'], // the localized fields to fill
           sourceLocale: 'en', // change if your default is different
           // targetLocales: ['de','fr','it'],       // or omit to use all configured except source
         },

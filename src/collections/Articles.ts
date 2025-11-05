@@ -16,6 +16,7 @@ export const Articles: CollectionConfig = {
     group: 'Content',
   },
   access: { read: () => true },
+  orderable: true,
 
   fields: [
     // Title — localized

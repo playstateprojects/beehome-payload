@@ -146,6 +146,10 @@ export interface Article {
    * Auto-filled from Title if left blank.
    */
   slug?: string | null;
+  /**
+   * A short Tagline that will apear on the homepage and at the top of each article in a script font.
+   */
+  tagline?: string | null;
   heroImage?: (number | null) | Media;
   intro?: {
     root: {
@@ -660,6 +664,7 @@ export interface PayloadMigration {
 export interface ArticlesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  tagline?: T;
   heroImage?: T;
   intro?: T;
   body?: T;

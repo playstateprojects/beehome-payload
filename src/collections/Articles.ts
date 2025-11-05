@@ -35,6 +35,15 @@ export const Articles: CollectionConfig = {
       localized: false,
       admin: { description: 'Auto-filled from Title if left blank.' },
     },
+    {
+      name: 'tagline',
+      type: 'text',
+      localized: true,
+      admin: {
+        description:
+          'A short Tagline that will apear on the homepage and at the top of each article in a script font.',
+      },
+    },
 
     // Hero image — NOT localized
     {
@@ -165,7 +174,7 @@ export const Articles: CollectionConfig = {
           maxTokens: 1300,
         },
         {
-          fields: ['body', 'intro', 'title'], // the localized fields to fill
+          fields: ['body', 'intro', 'title', 'tagline'], // the localized fields to fill
           sourceLocale: 'en', // change if your default is different
           // targetLocales: ['de','fr','it'],       // or omit to use all configured except source
         },

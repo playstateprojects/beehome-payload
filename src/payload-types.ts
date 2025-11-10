@@ -286,16 +286,30 @@ export interface ActionCard {
     };
     [k: string]: unknown;
   } | null;
-  publishDate?: string | null;
-  endDate?: string | null;
-  /**
-   * Show even if already viewed
-   */
-  multipleViews?: boolean | null;
   /**
    * Display this Action Card to all users. No rules will be checked before display
    */
   displayToAllUsers?: boolean | null;
+  /**
+   * The action card will only be displayed once this date is reached.
+   */
+  publishDate?: string | null;
+  /**
+   * The action card will not be displayed after this date.
+   */
+  endDate?: string | null;
+  /**
+   * The number of days between repeat displays. If set to 365, the user would receive the same message again next year.
+   */
+  schedule?: number | null;
+  /**
+   * Select the months that this action card is valid for.
+   */
+  validMonths?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')[] | null;
+  /**
+   * Number of times a user can receive this message. When set to 1, the user will never see this action card again after the first display.
+   */
+  limmit?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -710,10 +724,12 @@ export interface ActionCardsSelect<T extends boolean = true> {
   link?: T;
   image?: T;
   body?: T;
+  displayToAllUsers?: T;
   publishDate?: T;
   endDate?: T;
-  multipleViews?: T;
-  displayToAllUsers?: T;
+  schedule?: T;
+  validMonths?: T;
+  limmit?: T;
   updatedAt?: T;
   createdAt?: T;
 }

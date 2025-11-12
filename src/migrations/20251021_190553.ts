@@ -1,46 +1,71 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-d1-sqlite'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  await db.run(sql`CREATE TABLE \`space_reviews\` (
-  	\`id\` integer PRIMARY KEY NOT NULL,
-  	\`active\` integer DEFAULT true,
-  	\`slug\` text NOT NULL,
-  	\`updated_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
-  	\`created_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL
-  );
-  `)
-  await db.run(sql`CREATE UNIQUE INDEX \`space_reviews_slug_idx\` ON \`space_reviews\` (\`slug\`);`)
-  await db.run(sql`CREATE INDEX \`space_reviews_updated_at_idx\` ON \`space_reviews\` (\`updated_at\`);`)
-  await db.run(sql`CREATE INDEX \`space_reviews_created_at_idx\` ON \`space_reviews\` (\`created_at\`);`)
-  await db.run(sql`CREATE TABLE \`space_reviews_locales\` (
-  	\`label\` text NOT NULL,
-  	\`description\` text,
-  	\`id\` integer PRIMARY KEY NOT NULL,
-  	\`_locale\` text NOT NULL,
-  	\`_parent_id\` integer NOT NULL,
-  	FOREIGN KEY (\`_parent_id\`) REFERENCES \`space_reviews\`(\`id\`) ON UPDATE no action ON DELETE cascade
-  );
-  `)
-  await db.run(sql`CREATE UNIQUE INDEX \`space_reviews_locales_locale_parent_id_unique\` ON \`space_reviews_locales\` (\`_locale\`,\`_parent_id\`);`)
-  await db.run(sql`CREATE TABLE \`space_reviews_rels\` (
-  	\`id\` integer PRIMARY KEY NOT NULL,
-  	\`order\` integer,
-  	\`parent_id\` integer NOT NULL,
-  	\`path\` text NOT NULL,
-  	\`space_types_id\` integer,
-  	\`commitments_id\` integer,
-  	FOREIGN KEY (\`parent_id\`) REFERENCES \`space_reviews\`(\`id\`) ON UPDATE no action ON DELETE cascade,
-  	FOREIGN KEY (\`space_types_id\`) REFERENCES \`space_types\`(\`id\`) ON UPDATE no action ON DELETE cascade,
-  	FOREIGN KEY (\`commitments_id\`) REFERENCES \`commitments\`(\`id\`) ON UPDATE no action ON DELETE cascade
-  );
-  `)
-  await db.run(sql`CREATE INDEX \`space_reviews_rels_order_idx\` ON \`space_reviews_rels\` (\`order\`);`)
-  await db.run(sql`CREATE INDEX \`space_reviews_rels_parent_idx\` ON \`space_reviews_rels\` (\`parent_id\`);`)
-  await db.run(sql`CREATE INDEX \`space_reviews_rels_path_idx\` ON \`space_reviews_rels\` (\`path\`);`)
-  await db.run(sql`CREATE INDEX \`space_reviews_rels_space_types_id_idx\` ON \`space_reviews_rels\` (\`space_types_id\`);`)
-  await db.run(sql`CREATE INDEX \`space_reviews_rels_commitments_id_idx\` ON \`space_reviews_rels\` (\`commitments_id\`);`)
-  await db.run(sql`ALTER TABLE \`payload_locked_documents_rels\` ADD \`space_reviews_id\` integer REFERENCES space_reviews(id);`)
-  await db.run(sql`CREATE INDEX \`payload_locked_documents_rels_space_reviews_id_idx\` ON \`payload_locked_documents_rels\` (\`space_reviews_id\`);`)
+  // Check if space_reviews table exists
+  const tables = await db.run(sql`SELECT name FROM sqlite_master WHERE type='table' AND name='space_reviews';`)
+
+  if (!tables.results || tables.results.length === 0) {
+    await db.run(sql`CREATE TABLE \`space_reviews\` (
+    	\`id\` integer PRIMARY KEY NOT NULL,
+    	\`active\` integer DEFAULT true,
+    	\`slug\` text NOT NULL,
+    	\`updated_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
+    	\`created_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL
+    );
+    `)
+    await db.run(sql`CREATE UNIQUE INDEX \`space_reviews_slug_idx\` ON \`space_reviews\` (\`slug\`);`)
+    await db.run(sql`CREATE INDEX \`space_reviews_updated_at_idx\` ON \`space_reviews\` (\`updated_at\`);`)
+    await db.run(sql`CREATE INDEX \`space_reviews_created_at_idx\` ON \`space_reviews\` (\`created_at\`);`)
+  }
+
+  // Check if space_reviews_locales table exists
+  const localesTables = await db.run(sql`SELECT name FROM sqlite_master WHERE type='table' AND name='space_reviews_locales';`)
+
+  if (!localesTables.results || localesTables.results.length === 0) {
+    await db.run(sql`CREATE TABLE \`space_reviews_locales\` (
+    	\`label\` text NOT NULL,
+    	\`description\` text,
+    	\`id\` integer PRIMARY KEY NOT NULL,
+    	\`_locale\` text NOT NULL,
+    	\`_parent_id\` integer NOT NULL,
+    	FOREIGN KEY (\`_parent_id\`) REFERENCES \`space_reviews\`(\`id\`) ON UPDATE no action ON DELETE cascade
+    );
+    `)
+    await db.run(sql`CREATE UNIQUE INDEX \`space_reviews_locales_locale_parent_id_unique\` ON \`space_reviews_locales\` (\`_locale\`,\`_parent_id\`);`)
+  }
+
+  // Check if space_reviews_rels table exists
+  const relsTables = await db.run(sql`SELECT name FROM sqlite_master WHERE type='table' AND name='space_reviews_rels';`)
+
+  if (!relsTables.results || relsTables.results.length === 0) {
+    await db.run(sql`CREATE TABLE \`space_reviews_rels\` (
+    	\`id\` integer PRIMARY KEY NOT NULL,
+    	\`order\` integer,
+    	\`parent_id\` integer NOT NULL,
+    	\`path\` text NOT NULL,
+    	\`space_types_id\` integer,
+    	\`commitments_id\` integer,
+    	FOREIGN KEY (\`parent_id\`) REFERENCES \`space_reviews\`(\`id\`) ON UPDATE no action ON DELETE cascade,
+    	FOREIGN KEY (\`space_types_id\`) REFERENCES \`space_types\`(\`id\`) ON UPDATE no action ON DELETE cascade,
+    	FOREIGN KEY (\`commitments_id\`) REFERENCES \`commitments\`(\`id\`) ON UPDATE no action ON DELETE cascade
+    );
+    `)
+    await db.run(sql`CREATE INDEX \`space_reviews_rels_order_idx\` ON \`space_reviews_rels\` (\`order\`);`)
+    await db.run(sql`CREATE INDEX \`space_reviews_rels_parent_idx\` ON \`space_reviews_rels\` (\`parent_id\`);`)
+    await db.run(sql`CREATE INDEX \`space_reviews_rels_path_idx\` ON \`space_reviews_rels\` (\`path\`);`)
+    await db.run(sql`CREATE INDEX \`space_reviews_rels_space_types_id_idx\` ON \`space_reviews_rels\` (\`space_types_id\`);`)
+    await db.run(sql`CREATE INDEX \`space_reviews_rels_commitments_id_idx\` ON \`space_reviews_rels\` (\`commitments_id\`);`)
+  }
+
+  // Check if column space_reviews_id exists in payload_locked_documents_rels
+  const tableInfo = await db.run(sql`PRAGMA table_info(payload_locked_documents_rels);`)
+  const columns = tableInfo.results as Array<{ name: string }>
+  const columnExists = columns.some(col => col.name === 'space_reviews_id')
+
+  if (!columnExists) {
+    await db.run(sql`ALTER TABLE \`payload_locked_documents_rels\` ADD \`space_reviews_id\` integer REFERENCES space_reviews(id);`)
+    await db.run(sql`CREATE INDEX \`payload_locked_documents_rels_space_reviews_id_idx\` ON \`payload_locked_documents_rels\` (\`space_reviews_id\`);`)
+  }
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {

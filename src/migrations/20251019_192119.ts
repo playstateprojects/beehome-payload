@@ -1,8 +1,20 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-d1-sqlite'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  await db.run(sql`DROP INDEX \`space_types_stable_id_idx\`;`)
-  await db.run(sql`ALTER TABLE \`space_types\` DROP COLUMN \`stable_id\`;`)
+  // Check if index exists before dropping
+  const indexes = await db.run(sql`SELECT name FROM sqlite_master WHERE type='index' AND name='space_types_stable_id_idx';`)
+  if (indexes.results && indexes.results.length > 0) {
+    await db.run(sql`DROP INDEX \`space_types_stable_id_idx\`;`)
+  }
+
+  // Check if column exists before dropping
+  const tableInfo = await db.run(sql`PRAGMA table_info(space_types);`)
+  const columns = tableInfo.results as Array<{ name: string }>
+  const columnExists = columns.some(col => col.name === 'stable_id')
+
+  if (columnExists) {
+    await db.run(sql`ALTER TABLE \`space_types\` DROP COLUMN \`stable_id\`;`)
+  }
   await db.run(sql`PRAGMA foreign_keys=OFF;`)
   await db.run(sql`CREATE TABLE \`__new_in_app_notifications_locales\` (
   	\`title\` text NOT NULL,

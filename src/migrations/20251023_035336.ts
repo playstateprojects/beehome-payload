@@ -1,9 +1,24 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-d1-sqlite'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  await db.run(sql`ALTER TABLE \`space_reviews\` ADD \`total_commitments\` numeric;`)
-  await db.run(sql`ALTER TABLE \`space_types\` ADD \`default_image_id\` integer REFERENCES media(id);`)
-  await db.run(sql`CREATE INDEX \`space_types_default_image_idx\` ON \`space_types\` (\`default_image_id\`);`)
+  // Check if total_commitments column exists in space_reviews
+  const spaceReviewsInfo = await db.run(sql`PRAGMA table_info(space_reviews);`)
+  const spaceReviewsColumns = spaceReviewsInfo.results as Array<{ name: string }>
+  const totalCommitmentsExists = spaceReviewsColumns.some(col => col.name === 'total_commitments')
+
+  if (!totalCommitmentsExists) {
+    await db.run(sql`ALTER TABLE \`space_reviews\` ADD \`total_commitments\` numeric;`)
+  }
+
+  // Check if default_image_id column exists in space_types
+  const spaceTypesInfo = await db.run(sql`PRAGMA table_info(space_types);`)
+  const spaceTypesColumns = spaceTypesInfo.results as Array<{ name: string }>
+  const defaultImageIdExists = spaceTypesColumns.some(col => col.name === 'default_image_id')
+
+  if (!defaultImageIdExists) {
+    await db.run(sql`ALTER TABLE \`space_types\` ADD \`default_image_id\` integer REFERENCES media(id);`)
+    await db.run(sql`CREATE INDEX \`space_types_default_image_idx\` ON \`space_types\` (\`default_image_id\`);`)
+  }
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {

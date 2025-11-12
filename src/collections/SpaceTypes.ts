@@ -4,6 +4,7 @@ import { slugify } from 'payload/shared'
 
 export const SpaceTypes: CollectionConfig = {
   slug: 'space-types',
+  orderable: true,
   labels: {
     singular: 'Space Type',
     plural: 'Space Types',

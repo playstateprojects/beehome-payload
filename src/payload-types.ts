@@ -448,6 +448,7 @@ export interface SpaceReview {
  */
 export interface SpaceType {
   id: number;
+  _order?: string | null;
   /**
    * Commitments associated with this space type
    */
@@ -833,6 +834,7 @@ export interface PushNotificationsSelect<T extends boolean = true> {
  * via the `definition` "space-types_select".
  */
 export interface SpaceTypesSelect<T extends boolean = true> {
+  _order?: T;
   commitments?: T;
   label?: T;
   defaultImage?: T;

@@ -25,6 +25,7 @@ export const SpaceTypes: CollectionConfig = {
       type: 'join',
       collection: 'commitments',
       on: 'space_types',
+      maxDepth: 0, // Don't populate nested relationships to avoid complex queries
       admin: {
         description: 'Commitments associated with this space type',
       },

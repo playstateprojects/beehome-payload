@@ -20,7 +20,7 @@ import ActionCards from './collections/ActionCards'
 import { Questionnaire } from './collections/Questionnaire'
 import { Badge } from './collections/Badge'
 import { ProductRecommendations } from './blocks/ProductRecommendations'
-import { SpaceReviews } from './collections/SpaceReviews'
+import { SpaceActions } from './collections/SpaceActions'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -49,7 +49,7 @@ export default buildConfig({
     ActionCards,
     Questionnaire,
     Badge,
-    SpaceReviews,
+    SpaceActions,
     PushNotifications,
     SpaceTypes,
     Commitments,

@@ -1,13 +1,13 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-d1-sqlite'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  // Check if total_commitments column exists in space_reviews
-  const spaceReviewsInfo = await db.run(sql`PRAGMA table_info(space_reviews);`)
-  const spaceReviewsColumns = spaceReviewsInfo.results as Array<{ name: string }>
-  const totalCommitmentsExists = spaceReviewsColumns.some(col => col.name === 'total_commitments')
+  // Check if total_commitments column exists in space_actions
+  const spaceActionsInfo = await db.run(sql`PRAGMA table_info(space_actions);`)
+  const spaceActionsColumns = spaceActionsInfo.results as Array<{ name: string }>
+  const totalCommitmentsExists = spaceActionsColumns.some(col => col.name === 'total_commitments')
 
   if (!totalCommitmentsExists) {
-    await db.run(sql`ALTER TABLE \`space_reviews\` ADD \`total_commitments\` numeric;`)
+    await db.run(sql`ALTER TABLE \`space_actions\` ADD \`total_commitments\` numeric;`)
   }
 
   // Check if default_image_id column exists in space_types
@@ -39,5 +39,5 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   await db.run(sql`CREATE UNIQUE INDEX \`space_types_slug_idx\` ON \`space_types\` (\`slug\`);`)
   await db.run(sql`CREATE INDEX \`space_types_updated_at_idx\` ON \`space_types\` (\`updated_at\`);`)
   await db.run(sql`CREATE INDEX \`space_types_created_at_idx\` ON \`space_types\` (\`created_at\`);`)
-  await db.run(sql`ALTER TABLE \`space_reviews\` DROP COLUMN \`total_commitments\`;`)
+  await db.run(sql`ALTER TABLE \`space_actions\` DROP COLUMN \`total_commitments\`;`)
 }

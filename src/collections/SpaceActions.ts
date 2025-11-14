@@ -2,11 +2,11 @@ import type { CollectionConfig } from 'payload'
 import { aiLocalizeCollection } from '../hooks/aiLocalize'
 import { slugify } from 'payload/shared'
 
-export const SpaceReviews: CollectionConfig = {
-  slug: 'space-reviews',
+export const SpaceActions: CollectionConfig = {
+  slug: 'space-actions',
   labels: {
-    singular: 'Space Review',
-    plural: 'Space Reviews',
+    singular: 'Space Action',
+    plural: 'Space Actions',
   },
   admin: {
     useAsTitle: 'label',
@@ -107,7 +107,7 @@ export const SpaceReviews: CollectionConfig = {
       unique: true,
       localized: false,
       admin: {
-        description: 'Machine identifier — must match D1.space_reviews.key',
+        description: 'Machine identifier — must match D1.space_actions.key',
       },
     },
   ],

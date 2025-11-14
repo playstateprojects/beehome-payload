@@ -72,7 +72,7 @@ export interface Config {
     'action-cards': ActionCard;
     questionnaire: Questionnaire;
     badges: Badge;
-    'space-reviews': SpaceReview;
+    'space-actions': SpaceAction;
     'push-notifications': PushNotification;
     'space-types': SpaceType;
     commitments: Commitment;
@@ -93,7 +93,7 @@ export interface Config {
     'action-cards': ActionCardsSelect<false> | ActionCardsSelect<true>;
     questionnaire: QuestionnaireSelect<false> | QuestionnaireSelect<true>;
     badges: BadgesSelect<false> | BadgesSelect<true>;
-    'space-reviews': SpaceReviewsSelect<false> | SpaceReviewsSelect<true>;
+    'space-actions': SpaceActionsSelect<false> | SpaceActionsSelect<true>;
     'push-notifications': PushNotificationsSelect<false> | PushNotificationsSelect<true>;
     'space-types': SpaceTypesSelect<false> | SpaceTypesSelect<true>;
     commitments: CommitmentsSelect<false> | CommitmentsSelect<true>;
@@ -405,9 +405,9 @@ export interface Badge {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "space-reviews".
+ * via the `definition` "space-actions".
  */
-export interface SpaceReview {
+export interface SpaceAction {
   id: number;
   /**
    * Human-readable name (localized).
@@ -436,7 +436,7 @@ export interface SpaceReview {
   maxCommitments?: number | null;
   active?: boolean | null;
   /**
-   * Machine identifier — must match D1.space_reviews.key
+   * Machine identifier — must match D1.space_actions.key
    */
   slug: string;
   updatedAt: string;
@@ -607,8 +607,8 @@ export interface PayloadLockedDocument {
         value: number | Badge;
       } | null)
     | ({
-        relationTo: 'space-reviews';
-        value: number | SpaceReview;
+        relationTo: 'space-actions';
+        value: number | SpaceAction;
       } | null)
     | ({
         relationTo: 'push-notifications';
@@ -794,9 +794,9 @@ export interface BadgesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "space-reviews_select".
+ * via the `definition` "space-actions_select".
  */
-export interface SpaceReviewsSelect<T extends boolean = true> {
+export interface SpaceActionsSelect<T extends boolean = true> {
   label?: T;
   description?: T;
   includedSpaceTypes?: T;

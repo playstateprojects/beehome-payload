@@ -1,14 +1,34 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-d1-sqlite'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  await db.run(sql`ALTER TABLE \`checklist_option_groups_options\` RENAME TO \`questionnaire_option_groups_options\`;`)
-  await db.run(sql`ALTER TABLE \`checklist_option_groups_options_locales\` RENAME TO \`questionnaire_option_groups_options_locales\`;`)
-  await db.run(sql`ALTER TABLE \`checklist_option_groups\` RENAME TO \`questionnaire_option_groups\`;`)
-  await db.run(sql`ALTER TABLE \`checklist_option_groups_locales\` RENAME TO \`questionnaire_option_groups_locales\`;`)
-  await db.run(sql`ALTER TABLE \`checklist_end_screens\` RENAME TO \`questionnaire_end_screens\`;`)
-  await db.run(sql`ALTER TABLE \`checklist_end_screens_locales\` RENAME TO \`questionnaire_end_screens_locales\`;`)
-  await db.run(sql`ALTER TABLE \`checklist\` RENAME TO \`questionnaire\`;`)
-  await db.run(sql`ALTER TABLE \`checklist_locales\` RENAME TO \`questionnaire_locales\`;`)
+  // Check if tables need to be renamed (only rename if old table exists and new doesn't)
+  const tables = await db.run(sql`SELECT name FROM sqlite_master WHERE type='table';`)
+  const tableNames = (tables.results as Array<{ name: string }>).map(t => t.name)
+
+  if (tableNames.includes('checklist_option_groups_options') && !tableNames.includes('questionnaire_option_groups_options')) {
+    await db.run(sql`ALTER TABLE \`checklist_option_groups_options\` RENAME TO \`questionnaire_option_groups_options\`;`)
+  }
+  if (tableNames.includes('checklist_option_groups_options_locales') && !tableNames.includes('questionnaire_option_groups_options_locales')) {
+    await db.run(sql`ALTER TABLE \`checklist_option_groups_options_locales\` RENAME TO \`questionnaire_option_groups_options_locales\`;`)
+  }
+  if (tableNames.includes('checklist_option_groups') && !tableNames.includes('questionnaire_option_groups')) {
+    await db.run(sql`ALTER TABLE \`checklist_option_groups\` RENAME TO \`questionnaire_option_groups\`;`)
+  }
+  if (tableNames.includes('checklist_option_groups_locales') && !tableNames.includes('questionnaire_option_groups_locales')) {
+    await db.run(sql`ALTER TABLE \`checklist_option_groups_locales\` RENAME TO \`questionnaire_option_groups_locales\`;`)
+  }
+  if (tableNames.includes('checklist_end_screens') && !tableNames.includes('questionnaire_end_screens')) {
+    await db.run(sql`ALTER TABLE \`checklist_end_screens\` RENAME TO \`questionnaire_end_screens\`;`)
+  }
+  if (tableNames.includes('checklist_end_screens_locales') && !tableNames.includes('questionnaire_end_screens_locales')) {
+    await db.run(sql`ALTER TABLE \`checklist_end_screens_locales\` RENAME TO \`questionnaire_end_screens_locales\`;`)
+  }
+  if (tableNames.includes('checklist') && !tableNames.includes('questionnaire')) {
+    await db.run(sql`ALTER TABLE \`checklist\` RENAME TO \`questionnaire\`;`)
+  }
+  if (tableNames.includes('checklist_locales') && !tableNames.includes('questionnaire_locales')) {
+    await db.run(sql`ALTER TABLE \`checklist_locales\` RENAME TO \`questionnaire_locales\`;`)
+  }
   await db.run(sql`PRAGMA foreign_keys=OFF;`)
   await db.run(sql`CREATE TABLE \`__new_questionnaire_option_groups_options\` (
   	\`_order\` integer NOT NULL,
@@ -92,12 +112,14 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(sql`DROP TABLE \`questionnaire_end_screens_locales\`;`)
   await db.run(sql`ALTER TABLE \`__new_questionnaire_end_screens_locales\` RENAME TO \`questionnaire_end_screens_locales\`;`)
   await db.run(sql`CREATE UNIQUE INDEX \`questionnaire_end_screens_locales_locale_parent_id_unique\` ON \`questionnaire_end_screens_locales\` (\`_locale\`,\`_parent_id\`);`)
-  await db.run(sql`DROP INDEX \`checklist_slug_idx\`;`)
-  await db.run(sql`DROP INDEX \`checklist_updated_at_idx\`;`)
-  await db.run(sql`DROP INDEX \`checklist_created_at_idx\`;`)
-  await db.run(sql`CREATE UNIQUE INDEX \`questionnaire_slug_idx\` ON \`questionnaire\` (\`slug\`);`)
-  await db.run(sql`CREATE INDEX \`questionnaire_updated_at_idx\` ON \`questionnaire\` (\`updated_at\`);`)
-  await db.run(sql`CREATE INDEX \`questionnaire_created_at_idx\` ON \`questionnaire\` (\`created_at\`);`)
+  // Drop old indexes if they exist
+  await db.run(sql`DROP INDEX IF EXISTS \`checklist_slug_idx\`;`)
+  await db.run(sql`DROP INDEX IF EXISTS \`checklist_updated_at_idx\`;`)
+  await db.run(sql`DROP INDEX IF EXISTS \`checklist_created_at_idx\`;`)
+  // Create new indexes if they don't exist
+  await db.run(sql`CREATE UNIQUE INDEX IF NOT EXISTS \`questionnaire_slug_idx\` ON \`questionnaire\` (\`slug\`);`)
+  await db.run(sql`CREATE INDEX IF NOT EXISTS \`questionnaire_updated_at_idx\` ON \`questionnaire\` (\`updated_at\`);`)
+  await db.run(sql`CREATE INDEX IF NOT EXISTS \`questionnaire_created_at_idx\` ON \`questionnaire\` (\`created_at\`);`)
   await db.run(sql`CREATE TABLE \`__new_questionnaire_locales\` (
   	\`title\` text NOT NULL,
   	\`description\` text,

@@ -81,8 +81,18 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`created_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL
   );
   `)
-  await db.run(sql`CREATE UNIQUE INDEX IF NOT EXISTS \`space_types_stable_id_idx\` ON \`space_types\` (\`stable_id\`);`)
-  await db.run(sql`CREATE UNIQUE INDEX IF NOT EXISTS \`space_types_key_idx\` ON \`space_types\` (\`key\`);`)
+  // Check if columns exist before creating indexes
+  const spaceTypesInfo = await db.run(sql`PRAGMA table_info(space_types);`)
+  const spaceTypesColumns = spaceTypesInfo.results as Array<{ name: string }>
+  const stableIdExists = spaceTypesColumns.some(col => col.name === 'stable_id')
+  const keyExists = spaceTypesColumns.some(col => col.name === 'key')
+
+  if (stableIdExists) {
+    await db.run(sql`CREATE UNIQUE INDEX IF NOT EXISTS \`space_types_stable_id_idx\` ON \`space_types\` (\`stable_id\`);`)
+  }
+  if (keyExists) {
+    await db.run(sql`CREATE UNIQUE INDEX IF NOT EXISTS \`space_types_key_idx\` ON \`space_types\` (\`key\`);`)
+  }
   await db.run(sql`CREATE INDEX IF NOT EXISTS \`space_types_updated_at_idx\` ON \`space_types\` (\`updated_at\`);`)
   await db.run(sql`CREATE INDEX IF NOT EXISTS \`space_types_created_at_idx\` ON \`space_types\` (\`created_at\`);`)
   await db.run(sql`CREATE TABLE IF NOT EXISTS \`space_types_locales\` (
@@ -109,8 +119,18 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`created_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL
   );
   `)
-  await db.run(sql`CREATE UNIQUE INDEX IF NOT EXISTS \`commitments_stable_id_idx\` ON \`commitments\` (\`stable_id\`);`)
-  await db.run(sql`CREATE UNIQUE INDEX IF NOT EXISTS \`commitments_key_idx\` ON \`commitments\` (\`key\`);`)
+  // Check if columns exist before creating indexes
+  const commitmentsInfo = await db.run(sql`PRAGMA table_info(commitments);`)
+  const commitmentsColumns = commitmentsInfo.results as Array<{ name: string }>
+  const commitmentsStableIdExists = commitmentsColumns.some(col => col.name === 'stable_id')
+  const commitmentsKeyExists = commitmentsColumns.some(col => col.name === 'key')
+
+  if (commitmentsStableIdExists) {
+    await db.run(sql`CREATE UNIQUE INDEX IF NOT EXISTS \`commitments_stable_id_idx\` ON \`commitments\` (\`stable_id\`);`)
+  }
+  if (commitmentsKeyExists) {
+    await db.run(sql`CREATE UNIQUE INDEX IF NOT EXISTS \`commitments_key_idx\` ON \`commitments\` (\`key\`);`)
+  }
   await db.run(sql`CREATE INDEX IF NOT EXISTS \`commitments_updated_at_idx\` ON \`commitments\` (\`updated_at\`);`)
   await db.run(sql`CREATE INDEX IF NOT EXISTS \`commitments_created_at_idx\` ON \`commitments\` (\`created_at\`);`)
   await db.run(sql`CREATE TABLE IF NOT EXISTS \`commitments_locales\` (

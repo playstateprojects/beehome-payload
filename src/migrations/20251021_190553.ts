@@ -1,8 +1,8 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-d1-sqlite'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  // Check if space_actions table exists
-  const tables = await db.run(sql`SELECT name FROM sqlite_master WHERE type='table' AND name='space_actions';`)
+  // Check if space_reviews table exists
+  const tables = await db.run(sql`SELECT name FROM sqlite_master WHERE type='table' AND name='space_reviews';`)
 
   if (!tables.results || tables.results.length === 0) {
     await db.run(sql`CREATE TABLE \`space_reviews\` (

@@ -21,6 +21,7 @@ import { Questionnaire } from './collections/Questionnaire'
 import { Badge } from './collections/Badge'
 import { ProductRecommendations } from './blocks/ProductRecommendations'
 import { SpaceActions } from './collections/SpaceActions'
+import BeeInfo from './collections/BeeInfo'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -45,6 +46,7 @@ export default buildConfig({
   },
   collections: [
     Articles,
+    BeeInfo,
     InAppNotifications,
     ActionCards,
     Questionnaire,

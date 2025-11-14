@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     articles: Article;
+    'bee-info': BeeInfo;
     'in-app-notifications': InAppNotification;
     'action-cards': ActionCard;
     questionnaire: Questionnaire;
@@ -89,6 +90,7 @@ export interface Config {
   };
   collectionsSelect: {
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
+    'bee-info': BeeInfoSelect<false> | BeeInfoSelect<true>;
     'in-app-notifications': InAppNotificationsSelect<false> | InAppNotificationsSelect<true>;
     'action-cards': ActionCardsSelect<false> | ActionCardsSelect<true>;
     questionnaire: QuestionnaireSelect<false> | QuestionnaireSelect<true>;
@@ -206,6 +208,98 @@ export interface Media {
   filesize?: number | null;
   width?: number | null;
   height?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bee-info".
+ */
+export interface BeeInfo {
+  id: number;
+  /**
+   * Common name of the bee species (localized).
+   */
+  speciesName: string;
+  /**
+   * Auto-generated from Species Name if left blank.
+   */
+  slug?: string | null;
+  /**
+   * Latin scientific name (e.g., Apis mellifera).
+   */
+  scientificName: string;
+  /**
+   * A short tagline that appears at the top of the bee info page.
+   */
+  commonTagline?: string | null;
+  /**
+   * Main header image for this bee species.
+   */
+  heroImage?: (number | null) | Media;
+  /**
+   * Size description (e.g., "8-12mm").
+   */
+  size?: string | null;
+  /**
+   * When this bee is active (e.g., "March - September").
+   */
+  flightTime?: string | null;
+  /**
+   * Geographic distribution of the species.
+   */
+  distribution?: string | null;
+  /**
+   * Preferred habitat types.
+   */
+  habitat?: string | null;
+  /**
+   * Conservation status of the species.
+   */
+  status?: ('common' | 'stable' | 'declining' | 'threatened' | 'endangered' | 'unknown') | null;
+  /**
+   * Notable characteristics or behaviors of this bee species.
+   */
+  specialTrait?: string | null;
+  /**
+   * Add multiple content sections with titles, rich text, and optional images.
+   */
+  sections?:
+    | {
+        sectionTitle: string;
+        sectionBody: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        /**
+         * Optional image for this section.
+         */
+        sectionImage?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Link to related articles.
+   */
+  relatedArticles?: (number | Article)[] | null;
+  /**
+   * Link to other related bee species.
+   */
+  relatedBees?: (number | BeeInfo)[] | null;
+  publishDate?: string | null;
+  author?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -409,6 +503,7 @@ export interface Badge {
  */
 export interface SpaceAction {
   id: number;
+  _order?: string | null;
   /**
    * Human-readable name (localized).
    */
@@ -434,6 +529,10 @@ export interface SpaceAction {
    * The Maximum number of commitments required to see this message
    */
   maxCommitments?: number | null;
+  /**
+   * Link for the action card
+   */
+  link?: string | null;
   active?: boolean | null;
   /**
    * Machine identifier — must match D1.space_actions.key
@@ -591,6 +690,10 @@ export interface PayloadLockedDocument {
         value: number | Article;
       } | null)
     | ({
+        relationTo: 'bee-info';
+        value: number | BeeInfo;
+      } | null)
+    | ({
         relationTo: 'in-app-notifications';
         value: number | InAppNotification;
       } | null)
@@ -688,6 +791,38 @@ export interface ArticlesSelect<T extends boolean = true> {
   publishDate?: T;
   author?: T;
   reviewStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bee-info_select".
+ */
+export interface BeeInfoSelect<T extends boolean = true> {
+  speciesName?: T;
+  slug?: T;
+  scientificName?: T;
+  commonTagline?: T;
+  heroImage?: T;
+  size?: T;
+  flightTime?: T;
+  distribution?: T;
+  habitat?: T;
+  status?: T;
+  specialTrait?: T;
+  sections?:
+    | T
+    | {
+        sectionTitle?: T;
+        sectionBody?: T;
+        sectionImage?: T;
+        id?: T;
+      };
+  relatedArticles?: T;
+  relatedBees?: T;
+  publishDate?: T;
+  author?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -797,6 +932,7 @@ export interface BadgesSelect<T extends boolean = true> {
  * via the `definition` "space-actions_select".
  */
 export interface SpaceActionsSelect<T extends boolean = true> {
+  _order?: T;
   label?: T;
   description?: T;
   includedSpaceTypes?: T;
@@ -804,6 +940,7 @@ export interface SpaceActionsSelect<T extends boolean = true> {
   excludedCommitments?: T;
   minCommitments?: T;
   maxCommitments?: T;
+  link?: T;
   active?: T;
   slug?: T;
   updatedAt?: T;

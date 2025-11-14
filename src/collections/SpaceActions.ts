@@ -4,6 +4,7 @@ import { slugify } from 'payload/shared'
 
 export const SpaceActions: CollectionConfig = {
   slug: 'space-actions',
+  orderable: true,
   labels: {
     singular: 'Space Action',
     plural: 'Space Actions',
@@ -92,6 +93,15 @@ export const SpaceActions: CollectionConfig = {
       localized: false,
       admin: {
         description: 'The Maximum number of commitments required to see this message',
+      },
+    },
+    {
+      name: 'link',
+      type: 'text',
+      required: false,
+      localized: false,
+      admin: {
+        description: 'Link for the action card',
       },
     },
     {

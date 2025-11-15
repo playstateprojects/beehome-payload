@@ -171,6 +171,9 @@ export const BeeInfo: CollectionConfig = {
                   type: 'text',
                   required: true,
                   localized: true,
+                  admin: {
+                    description: 'An optional title for the section.',
+                  },
                 },
                 {
                   name: 'sectionBody',

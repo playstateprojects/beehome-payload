@@ -266,6 +266,9 @@ export interface BeeInfo {
    */
   sections?:
     | {
+        /**
+         * An optional title for the section.
+         */
         sectionTitle: string;
         sectionBody: {
           root: {

@@ -127,6 +127,16 @@ export const InAppNotifications: CollectionConfig = {
               localized: false,
             },
             {
+              name: 'allUsers',
+              type: 'checkbox',
+              localized: false,
+              label: 'Send to All Users',
+              admin: {
+                description:
+                  'When checked, the message will be sent to all users of the app. All conditional checks will be skipped and all users will receive the notification.',
+              },
+            },
+            {
               type: 'collapsible',
               label: 'Advanced Scheduling',
               admin: {

@@ -334,6 +334,10 @@ export interface InAppNotification {
    */
   endDate?: string | null;
   /**
+   * When checked, the message will be sent to all users of the app. All conditional checks will be skipped and all users will receive the notification.
+   */
+  allUsers?: boolean | null;
+  /**
    * The number of days between repeat displays. If set to 365, the user would receive the same message again next year.
    */
   schedule?: number | null;
@@ -863,6 +867,7 @@ export interface InAppNotificationsSelect<T extends boolean = true> {
   conditionNotes?: T;
   publishDate?: T;
   endDate?: T;
+  allUsers?: T;
   schedule?: T;
   validMonths?: T;
   limmit?: T;

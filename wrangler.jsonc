@@ -46,7 +46,7 @@
   // Here's how to configure an additional environment
   // It can be deployed with `CLOUDFLARE_ENV=staging pnpm run deploy`
   "env": {
-    "dev": {
+    "preview": {
       "name": "beehome-payload-dev",
       "d1_databases": [
         {

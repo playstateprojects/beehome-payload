@@ -10,8 +10,8 @@ export const BeeInfo: CollectionConfig = {
   labels: { singular: 'Bee Info', plural: 'Bee Info' },
   versions: { drafts: true },
   admin: {
-    useAsTitle: 'speciesName',
-    defaultColumns: ['speciesName', 'scientificName', 'status', 'publishDate', 'updatedAt'],
+    useAsTitle: 'commonName',
+    defaultColumns: ['speciesName', 'scientificName', 'flightTime', 'publishDate', 'updatedAt'],
     group: 'Content',
   },
   access: { read: () => true },
@@ -27,8 +27,8 @@ export const BeeInfo: CollectionConfig = {
           label: 'Meta',
           fields: [
             {
-              name: 'speciesName',
-              label: 'Species Name',
+              name: 'commonName',
+              label: 'Common Name',
               type: 'text',
               required: true,
               localized: true,
@@ -57,12 +57,39 @@ export const BeeInfo: CollectionConfig = {
               },
             },
             {
-              name: 'commonTagline',
-              label: 'Common Tagline',
+              name: 'gbifLink',
+              label: 'GBIF Link',
+              type: 'text',
+              localized: false,
+              admin: {
+                description: 'URL to the GBIF (Global Biodiversity Information Facility) species page.',
+              },
+            },
+            {
+              name: 'inaturalistLink',
+              label: 'iNaturalist Link',
+              type: 'text',
+              localized: false,
+              admin: {
+                description: 'URL to the iNaturalist species page.',
+              },
+            },
+            {
+              name: 'tagline',
+              label: 'Tagline',
               type: 'text',
               localized: true,
               admin: {
                 description: 'A short tagline that appears at the top of the bee info page.',
+              },
+            },
+            {
+              name: 'intro',
+              label: 'Introductory Paragraph',
+              type: 'text',
+              localized: true,
+              admin: {
+                description: 'A short summary paragraph introducing the bee species.',
               },
             },
             {
@@ -276,11 +303,11 @@ export const BeeInfo: CollectionConfig = {
         if (!data.slug || String(data.slug).trim() === '') {
           const localization = req.payload.config.localization
           const defaultLocale = localization ? localization.defaultLocale : 'en'
-          const speciesName =
-            (typeof data.speciesName === 'object'
-              ? data.speciesName?.[defaultLocale]
-              : data.speciesName) || ''
-          if (speciesName) data.slug = slugify(speciesName)
+          const commonName =
+            (typeof data.commonName === 'object'
+              ? data.commonName?.[defaultLocale]
+              : data.commonName) || ''
+          if (commonName) data.slug = slugify(commonName)
         } else {
           data.slug = slugify(String(data.slug))
         }
@@ -297,8 +324,9 @@ export const BeeInfo: CollectionConfig = {
         },
         {
           fields: [
-            'speciesName',
-            'commonTagline',
+            'commonName',
+            'tagline',
+            'intro',
             'size',
             'flightTime',
             'distribution',

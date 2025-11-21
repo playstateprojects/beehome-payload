@@ -220,7 +220,7 @@ export interface BeeInfo {
   /**
    * Common name of the bee species (localized).
    */
-  speciesName: string;
+  commonName: string;
   /**
    * Auto-generated from Species Name if left blank.
    */
@@ -230,9 +230,21 @@ export interface BeeInfo {
    */
   scientificName: string;
   /**
+   * URL to the GBIF (Global Biodiversity Information Facility) species page.
+   */
+  gbifLink?: string | null;
+  /**
+   * URL to the iNaturalist species page.
+   */
+  inaturalistLink?: string | null;
+  /**
    * A short tagline that appears at the top of the bee info page.
    */
-  commonTagline?: string | null;
+  tagline?: string | null;
+  /**
+   * A short summary paragraph introducing the bee species.
+   */
+  intro?: string | null;
   /**
    * Main header image for this bee species.
    */
@@ -826,10 +838,13 @@ export interface ArticlesSelect<T extends boolean = true> {
  * via the `definition` "bee-info_select".
  */
 export interface BeeInfoSelect<T extends boolean = true> {
-  speciesName?: T;
+  commonName?: T;
   slug?: T;
   scientificName?: T;
-  commonTagline?: T;
+  gbifLink?: T;
+  inaturalistLink?: T;
+  tagline?: T;
+  intro?: T;
   heroImage?: T;
   size?: T;
   flightTime?: T;

@@ -62,7 +62,8 @@ export const BeeInfo: CollectionConfig = {
               type: 'text',
               localized: false,
               admin: {
-                description: 'URL to the GBIF (Global Biodiversity Information Facility) species page.',
+                description:
+                  'URL to the GBIF (Global Biodiversity Information Facility) species page.',
               },
             },
             {
@@ -303,11 +304,8 @@ export const BeeInfo: CollectionConfig = {
         if (!data.slug || String(data.slug).trim() === '') {
           const localization = req.payload.config.localization
           const defaultLocale = localization ? localization.defaultLocale : 'en'
-          const commonName =
-            (typeof data.commonName === 'object'
-              ? data.commonName?.[defaultLocale]
-              : data.commonName) || ''
-          if (commonName) data.slug = slugify(commonName)
+
+          if (data.scientificName) data.slug = slugify(data.scientificName)
         } else {
           data.slug = slugify(String(data.slug))
         }

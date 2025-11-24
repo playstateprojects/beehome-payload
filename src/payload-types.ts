@@ -530,6 +530,7 @@ export interface SpaceAction {
    */
   label: string;
   description?: string | null;
+  tagline?: string | null;
   /**
    * This message will only be shown to users with these space types.
    */
@@ -977,6 +978,7 @@ export interface SpaceActionsSelect<T extends boolean = true> {
   _order?: T;
   label?: T;
   description?: T;
+  tagline?: T;
   includedSpaceTypes?: T;
   includedCommitments?: T;
   excludedCommitments?: T;

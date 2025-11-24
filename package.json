@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
+    "backup:d1": "npx wrangler d1 export beehome-cms --remote --output ./db/backup-$(date +%F-%H%M%S).sql && npx aws s3 cp ./backups/backup-$(ls -t ./backups | head -1) s3://YOUR_R2_BUCKET/d1/beehome-cms/ --endpoint-url https://<YOUR_ACCOUNT_ID>.r2.cloudflarestorage.com",
     "deploy": "pnpm run deploy:database && pnpm run deploy:app",
     "deploy:app": "opennextjs-cloudflare build --env=$CLOUDFLARE_ENV && opennextjs-cloudflare deploy --env=$CLOUDFLARE_ENV",
     "deploy:database": "cross-env NODE_ENV=production PAYLOAD_SECRET=ignore payload migrate && wrangler d1 execute D1 --command 'PRAGMA optimize' --env=$CLOUDFLARE_ENV --remote",

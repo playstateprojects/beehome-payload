@@ -35,6 +35,11 @@ export const SpaceActions: CollectionConfig = {
       localized: true,
     },
     {
+      name: 'tagline',
+      type: 'textarea',
+      localized: true,
+    },
+    {
       name: 'includedSpaceTypes',
       type: 'relationship',
       relationTo: 'space-types',
@@ -147,7 +152,7 @@ export const SpaceActions: CollectionConfig = {
           maxTokens: 300,
         },
         {
-          fields: ['label', 'description'],
+          fields: ['label', 'description', 'tagline'],
           sourceLocale: 'en',
           guardFlagField: 'autoLocalize',
         },

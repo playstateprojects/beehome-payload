@@ -190,6 +190,26 @@ export interface Article {
   publishDate?: string | null;
   author?: string | null;
   reviewStatus?: string | null;
+  /**
+   * This article will only be shown to users who have these commitments.
+   */
+  includedCommitments?: (number | Commitment)[] | null;
+  /**
+   * This article will only be shown to users who do not have these commitments.
+   */
+  excludedCommitments?: (number | Commitment)[] | null;
+  /**
+   * Select the months that this article is valid for. Leave empty to show year-round.
+   */
+  validMonths?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')[] | null;
+  /**
+   * Link to related articles.
+   */
+  relatedArticles?: (number | Article)[] | null;
+  /**
+   * Link to other related bee species.
+   */
+  relatedBees?: (number | BeeInfo)[] | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -210,6 +230,73 @@ export interface Media {
   filesize?: number | null;
   width?: number | null;
   height?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "commitments".
+ */
+export interface Commitment {
+  id: number;
+  /**
+   * Human-readable label (localized).
+   */
+  title: string;
+  description?: string | null;
+  /**
+   * Single emoji character (optional)
+   */
+  emoji?: string | null;
+  /**
+   * Rough impact score 0-100
+   */
+  impact_score?: number | null;
+  /**
+   * Space types this commitment applies to
+   */
+  space_types: (number | SpaceType)[];
+  /**
+   * Machine key (e.g. no_pesticides, plant_native_flowers)
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "space-types".
+ */
+export interface SpaceType {
+  id: number;
+  _order?: string | null;
+  /**
+   * Commitments associated with this space type
+   */
+  commitments?: {
+    docs?: (number | Commitment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
+   * Human-readable name (localized).
+   */
+  label: string;
+  /**
+   * The default image to display if the user has not yet uploaded an image.
+   */
+  defaultImage?: (number | null) | Media;
+  /**
+   * Single emoji character (optional)
+   */
+  emoji?: string | null;
+  description?: string | null;
+  sort?: number | null;
+  active?: boolean | null;
+  /**
+   * Machine identifier (e.g. balcony, garden) — must match D1.space_types.key
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -565,73 +652,6 @@ export interface SpaceAction {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "space-types".
- */
-export interface SpaceType {
-  id: number;
-  _order?: string | null;
-  /**
-   * Commitments associated with this space type
-   */
-  commitments?: {
-    docs?: (number | Commitment)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  /**
-   * Human-readable name (localized).
-   */
-  label: string;
-  /**
-   * The default image to display if the user has not yet uploaded an image.
-   */
-  defaultImage?: (number | null) | Media;
-  /**
-   * Single emoji character (optional)
-   */
-  emoji?: string | null;
-  description?: string | null;
-  sort?: number | null;
-  active?: boolean | null;
-  /**
-   * Machine identifier (e.g. balcony, garden) — must match D1.space_types.key
-   */
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "commitments".
- */
-export interface Commitment {
-  id: number;
-  /**
-   * Human-readable label (localized).
-   */
-  title: string;
-  description?: string | null;
-  /**
-   * Single emoji character (optional)
-   */
-  emoji?: string | null;
-  /**
-   * Rough impact score 0-100
-   */
-  impact_score?: number | null;
-  /**
-   * Space types this commitment applies to
-   */
-  space_types: (number | SpaceType)[];
-  /**
-   * Machine key (e.g. no_pesticides, plant_native_flowers)
-   */
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "push-notifications".
  */
 export interface PushNotification {
@@ -830,6 +850,11 @@ export interface ArticlesSelect<T extends boolean = true> {
   publishDate?: T;
   author?: T;
   reviewStatus?: T;
+  includedCommitments?: T;
+  excludedCommitments?: T;
+  validMonths?: T;
+  relatedArticles?: T;
+  relatedBees?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

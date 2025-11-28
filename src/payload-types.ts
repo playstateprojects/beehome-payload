@@ -259,13 +259,51 @@ export interface Commitment {
    */
   impact_score?: number | null;
   /**
+   * Link text
+   */
+  linkText?: string | null;
+  /**
    * Space types this commitment applies to
    */
   space_types: (number | SpaceType)[];
   /**
+   * Title for the detail page
+   */
+  detailTitle?: string | null;
+  /**
+   * Subtitle for the detail page
+   */
+  detailSubtitle?: string | null;
+  /**
+   * Main content for the detail page
+   */
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
    * Machine key (e.g. no_pesticides, plant_native_flowers)
    */
   slug: string;
+  /**
+   * Parent commitment (optional)
+   */
+  parent?: (number | null) | Commitment;
+  /**
+   * Info article for this commitment
+   */
+  infoArticle?: (number | null) | Article;
   updatedAt: string;
   createdAt: string;
 }
@@ -1071,8 +1109,14 @@ export interface CommitmentsSelect<T extends boolean = true> {
   description?: T;
   emoji?: T;
   impact_score?: T;
+  linkText?: T;
   space_types?: T;
+  detailTitle?: T;
+  detailSubtitle?: T;
+  content?: T;
   slug?: T;
+  parent?: T;
+  infoArticle?: T;
   updatedAt?: T;
   createdAt?: T;
 }

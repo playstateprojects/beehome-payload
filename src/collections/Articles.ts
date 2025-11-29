@@ -141,8 +141,29 @@ export const Articles: CollectionConfig = {
           ],
         },
         {
-          label: 'Commitment Targeting',
+          label: 'Targeting',
           fields: [
+            {
+              name: 'spaceTypes',
+              label: 'Space Types',
+              type: 'relationship',
+              relationTo: 'space-types',
+              hasMany: true,
+              required: false,
+              localized: false,
+              defaultValue: async ({ req }) => {
+                const spaceTypes = await req.payload.find({
+                  collection: 'space-types',
+                  limit: 0,
+                  pagination: false,
+                })
+                return spaceTypes.docs.map((doc) => doc.id)
+              },
+              admin: {
+                description: 'This article will only be shown to users with these space types.',
+                width: '100%',
+              },
+            },
             {
               name: 'includedCommitments',
               label: 'Included Commitments',

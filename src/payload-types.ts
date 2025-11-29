@@ -191,6 +191,10 @@ export interface Article {
   author?: string | null;
   reviewStatus?: string | null;
   /**
+   * This article will only be shown to users with these space types.
+   */
+  spaceTypes?: (number | SpaceType)[] | null;
+  /**
    * This article will only be shown to users who have these commitments.
    */
   includedCommitments?: (number | Commitment)[] | null;
@@ -238,6 +242,43 @@ export interface Media {
   filesize?: number | null;
   width?: number | null;
   height?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "space-types".
+ */
+export interface SpaceType {
+  id: number;
+  _order?: string | null;
+  /**
+   * Commitments associated with this space type
+   */
+  commitments?: {
+    docs?: (number | Commitment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
+   * Human-readable name (localized).
+   */
+  label: string;
+  /**
+   * The default image to display if the user has not yet uploaded an image.
+   */
+  defaultImage?: (number | null) | Media;
+  /**
+   * Single emoji character (optional)
+   */
+  emoji?: string | null;
+  description?: string | null;
+  sort?: number | null;
+  active?: boolean | null;
+  /**
+   * Machine identifier (e.g. balcony, garden) — must match D1.space_types.key
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -304,43 +345,6 @@ export interface Commitment {
    * Info article for this commitment
    */
   infoArticle?: (number | null) | Article;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "space-types".
- */
-export interface SpaceType {
-  id: number;
-  _order?: string | null;
-  /**
-   * Commitments associated with this space type
-   */
-  commitments?: {
-    docs?: (number | Commitment)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  /**
-   * Human-readable name (localized).
-   */
-  label: string;
-  /**
-   * The default image to display if the user has not yet uploaded an image.
-   */
-  defaultImage?: (number | null) | Media;
-  /**
-   * Single emoji character (optional)
-   */
-  emoji?: string | null;
-  description?: string | null;
-  sort?: number | null;
-  active?: boolean | null;
-  /**
-   * Machine identifier (e.g. balcony, garden) — must match D1.space_types.key
-   */
-  slug: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -896,6 +900,7 @@ export interface ArticlesSelect<T extends boolean = true> {
   publishDate?: T;
   author?: T;
   reviewStatus?: T;
+  spaceTypes?: T;
   includedCommitments?: T;
   excludedCommitments?: T;
   validMonths?: T;

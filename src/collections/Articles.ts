@@ -201,8 +201,9 @@ export const Articles: CollectionConfig = {
               type: 'select',
               hasMany: true,
               localized: false,
+              defaultValue: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
               admin: {
-                description: 'Select the months that this article is valid for. Leave empty to show year-round.',
+                description: 'Select the months that this article is valid for. All months are selected by default.',
               },
               options: [
                 { label: 'January', value: '1' },

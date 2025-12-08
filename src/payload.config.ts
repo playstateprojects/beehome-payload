@@ -22,6 +22,7 @@ import { Badge } from './collections/Badge'
 import { ProductRecommendations } from './blocks/ProductRecommendations'
 import { SpaceActions } from './collections/SpaceActions'
 import BeeInfo from './collections/BeeInfo'
+import { SpaceProgressLevel } from './collections/SpaceProgressLevel'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -54,6 +55,7 @@ export default buildConfig({
     SpaceActions,
     PushNotifications,
     SpaceTypes,
+    SpaceProgressLevel,
     Commitments,
     Users,
     Media,

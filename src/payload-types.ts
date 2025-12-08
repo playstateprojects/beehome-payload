@@ -76,6 +76,7 @@ export interface Config {
     'space-actions': SpaceAction;
     'push-notifications': PushNotification;
     'space-types': SpaceType;
+    'space-progress-levels': SpaceProgressLevel;
     commitments: Commitment;
     users: User;
     media: Media;
@@ -99,6 +100,7 @@ export interface Config {
     'space-actions': SpaceActionsSelect<false> | SpaceActionsSelect<true>;
     'push-notifications': PushNotificationsSelect<false> | PushNotificationsSelect<true>;
     'space-types': SpaceTypesSelect<false> | SpaceTypesSelect<true>;
+    'space-progress-levels': SpaceProgressLevelsSelect<false> | SpaceProgressLevelsSelect<true>;
     commitments: CommitmentsSelect<false> | CommitmentsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -748,6 +750,70 @@ export interface PushNotification {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "space-progress-levels".
+ */
+export interface SpaceProgressLevel {
+  _order?: string | null;
+  /**
+   * Unique identifier (e.g., mini-wildbienen-oase)
+   */
+  id: string;
+  /**
+   * Display order of this level
+   */
+  order: number;
+  /**
+   * Hex color code (e.g., #80B873)
+   */
+  color: string;
+  /**
+   * Name in English
+   */
+  nameEn: string;
+  /**
+   * Name in German
+   */
+  nameDe: string;
+  /**
+   * Description in English
+   */
+  descriptionEn: string;
+  /**
+   * Description in German
+   */
+  descriptionDe: string;
+  /**
+   * Label for the action button (localized)
+   */
+  actionButtonLabel?: string | null;
+  /**
+   * URL or link for the action button
+   */
+  actionButtonLink?: string | null;
+  requirements: {
+    /**
+     * Minimum number of active categories required
+     */
+    minActiveCategories: number;
+    categoryRequirements?:
+      | {
+          /**
+           * The parent category slug (e.g., no_pesticides, rckzugsorte)
+           */
+          parentSlug: string;
+          /**
+           * Number of actions required from this category
+           */
+          required: number;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -830,6 +896,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'space-types';
         value: number | SpaceType;
+      } | null)
+    | ({
+        relationTo: 'space-progress-levels';
+        value: string | SpaceProgressLevel;
       } | null)
     | ({
         relationTo: 'commitments';
@@ -1103,6 +1173,36 @@ export interface SpaceTypesSelect<T extends boolean = true> {
   sort?: T;
   active?: T;
   slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "space-progress-levels_select".
+ */
+export interface SpaceProgressLevelsSelect<T extends boolean = true> {
+  _order?: T;
+  id?: T;
+  order?: T;
+  color?: T;
+  nameEn?: T;
+  nameDe?: T;
+  descriptionEn?: T;
+  descriptionDe?: T;
+  actionButtonLabel?: T;
+  actionButtonLink?: T;
+  requirements?:
+    | T
+    | {
+        minActiveCategories?: T;
+        categoryRequirements?:
+          | T
+          | {
+              parentSlug?: T;
+              required?: T;
+              id?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
 }

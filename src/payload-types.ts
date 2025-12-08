@@ -203,7 +203,7 @@ export interface Article {
    */
   excludedCommitments?: (number | Commitment)[] | null;
   /**
-   * Select the months that this article is valid for. Leave empty to show year-round.
+   * Select the months that this article is valid for. All months are selected by default.
    */
   validMonths?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')[] | null;
   /**
@@ -286,6 +286,7 @@ export interface SpaceType {
  */
 export interface Commitment {
   id: number;
+  _order?: string | null;
   /**
    * Human-readable label (localized).
    */
@@ -1110,6 +1111,7 @@ export interface SpaceTypesSelect<T extends boolean = true> {
  * via the `definition` "commitments_select".
  */
 export interface CommitmentsSelect<T extends boolean = true> {
+  _order?: T;
   title?: T;
   description?: T;
   emoji?: T;

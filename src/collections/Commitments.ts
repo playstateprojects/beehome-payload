@@ -4,6 +4,7 @@ import { slugify } from 'payload/shared'
 
 export const Commitments: CollectionConfig = {
   slug: 'commitments',
+  orderable: true,
   labels: {
     singular: 'Commitment',
     plural: 'Commitments',

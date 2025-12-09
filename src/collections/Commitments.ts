@@ -155,8 +155,36 @@ export const Commitments: CollectionConfig = {
               relationTo: 'articles',
               hasMany: false,
               admin: {
-                description: 'Info article for this commitment',
+                description: 'Default info article shown for all space types (unless overridden below)',
               },
+            },
+            {
+              name: 'space_type_article_overrides',
+              type: 'array',
+              label: 'Space Type Article Overrides',
+              admin: {
+                description: 'Override the info article for specific space types',
+              },
+              fields: [
+                {
+                  name: 'space_type',
+                  type: 'relationship',
+                  relationTo: 'space-types',
+                  required: true,
+                  admin: {
+                    description: 'Space type to override',
+                  },
+                },
+                {
+                  name: 'info_article',
+                  type: 'relationship',
+                  relationTo: 'articles',
+                  required: true,
+                  admin: {
+                    description: 'Article to show for this space type',
+                  },
+                },
+              ],
             },
           ],
         },

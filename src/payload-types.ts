@@ -345,9 +345,25 @@ export interface Commitment {
    */
   parent?: (number | null) | Commitment;
   /**
-   * Info article for this commitment
+   * Default info article shown for all space types (unless overridden below)
    */
   infoArticle?: (number | null) | Article;
+  /**
+   * Override the info article for specific space types
+   */
+  space_type_article_overrides?:
+    | {
+        /**
+         * Space type to override
+         */
+        space_type: number | SpaceType;
+        /**
+         * Article to show for this space type
+         */
+        info_article: number | Article;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -753,11 +769,16 @@ export interface PushNotification {
  * via the `definition` "space-progress-levels".
  */
 export interface SpaceProgressLevel {
+  id: number;
   _order?: string | null;
   /**
-   * Unique identifier (e.g., mini-wildbienen-oase)
+   * The Title
    */
-  id: string;
+  title: string;
+  /**
+   * Auto-filled fromTitle if left blank (e.g., mini-wildbienen-oase)
+   */
+  slug: string;
   /**
    * Display order of this level
    */
@@ -767,21 +788,13 @@ export interface SpaceProgressLevel {
    */
   color: string;
   /**
-   * Name in English
+   * Hex color code for the lighter color (e.g., #80B873)
    */
-  nameEn: string;
+  highlightColor: string;
   /**
-   * Name in German
+   * A shortDescription
    */
-  nameDe: string;
-  /**
-   * Description in English
-   */
-  descriptionEn: string;
-  /**
-   * Description in German
-   */
-  descriptionDe: string;
+  description: string;
   /**
    * Label for the action button (localized)
    */
@@ -808,6 +821,32 @@ export interface SpaceProgressLevel {
           id?: string | null;
         }[]
       | null;
+  };
+  successPage?: {
+    /**
+     * Title for the success page
+     */
+    title?: string | null;
+    /**
+     * Image to display on the success page
+     */
+    image?: (number | null) | Media;
+    /**
+     * Main text content
+     */
+    mainText?: string | null;
+    /**
+     * Secondary text content
+     */
+    subText?: string | null;
+    /**
+     * Label for the action button
+     */
+    actionButtonLabel?: string | null;
+    /**
+     * URL or link for the action button
+     */
+    actionButtonLink?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -899,7 +938,7 @@ export interface PayloadLockedDocument {
       } | null)
     | ({
         relationTo: 'space-progress-levels';
-        value: string | SpaceProgressLevel;
+        value: number | SpaceProgressLevel;
       } | null)
     | ({
         relationTo: 'commitments';
@@ -1182,13 +1221,12 @@ export interface SpaceTypesSelect<T extends boolean = true> {
  */
 export interface SpaceProgressLevelsSelect<T extends boolean = true> {
   _order?: T;
-  id?: T;
+  title?: T;
+  slug?: T;
   order?: T;
   color?: T;
-  nameEn?: T;
-  nameDe?: T;
-  descriptionEn?: T;
-  descriptionDe?: T;
+  highlightColor?: T;
+  description?: T;
   actionButtonLabel?: T;
   actionButtonLink?: T;
   requirements?:
@@ -1202,6 +1240,16 @@ export interface SpaceProgressLevelsSelect<T extends boolean = true> {
               required?: T;
               id?: T;
             };
+      };
+  successPage?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        mainText?: T;
+        subText?: T;
+        actionButtonLabel?: T;
+        actionButtonLink?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1224,6 +1272,13 @@ export interface CommitmentsSelect<T extends boolean = true> {
   slug?: T;
   parent?: T;
   infoArticle?: T;
+  space_type_article_overrides?:
+    | T
+    | {
+        space_type?: T;
+        info_article?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

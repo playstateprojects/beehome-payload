@@ -666,7 +666,8 @@ export interface Badge {
   icon?: (number | null) | Media;
   page: {
     title: string;
-    description: string;
+    subtitle: string;
+    description?: string | null;
     image?: (number | null) | Media;
     actionButton?: string | null;
     actionButtonLink?: string | null;
@@ -1150,6 +1151,7 @@ export interface BadgesSelect<T extends boolean = true> {
     | T
     | {
         title?: T;
+        subtitle?: T;
         description?: T;
         image?: T;
         actionButton?: T;

@@ -46,9 +46,15 @@ export const Badge: CollectionConfig = {
           localized: true,
         },
         {
-          name: 'description',
+          name: 'subtitle',
           type: 'textarea',
           required: true,
+          localized: true,
+        },
+        {
+          name: 'description',
+          type: 'textarea',
+          required: false,
           localized: true,
         },
         {

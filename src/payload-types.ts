@@ -319,6 +319,10 @@ export interface Commitment {
    */
   detailSubtitle?: string | null;
   /**
+   * Title for the list of actions.
+   */
+  detailListTitle?: string | null;
+  /**
    * Main content for the detail page
    */
   content?: {
@@ -1270,6 +1274,7 @@ export interface CommitmentsSelect<T extends boolean = true> {
   space_types?: T;
   detailTitle?: T;
   detailSubtitle?: T;
+  detailListTitle?: T;
   content?: T;
   slug?: T;
   parent?: T;

@@ -118,6 +118,14 @@ export const Commitments: CollectionConfig = {
               },
             },
             {
+              name: 'detailListTitle',
+              type: 'text',
+              localized: true,
+              admin: {
+                description: 'Title for the list of actions.',
+              },
+            },
+            {
               name: 'content',
               type: 'richText',
               localized: true,
@@ -155,7 +163,8 @@ export const Commitments: CollectionConfig = {
               relationTo: 'articles',
               hasMany: false,
               admin: {
-                description: 'Default info article shown for all space types (unless overridden below)',
+                description:
+                  'Default info article shown for all space types (unless overridden below)',
               },
             },
             {

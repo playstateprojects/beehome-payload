@@ -9,6 +9,7 @@ export const BeeInfo: CollectionConfig = {
   slug: 'bee-info',
   labels: { singular: 'Bee Info', plural: 'Bee Info' },
   versions: { drafts: true },
+  orderable: true,
   admin: {
     useAsTitle: 'commonName',
     defaultColumns: ['speciesName', 'scientificName', 'flightTime', 'publishDate', 'updatedAt'],

@@ -377,6 +377,7 @@ export interface Commitment {
  */
 export interface BeeInfo {
   id: number;
+  _order?: string | null;
   /**
    * Common name of the bee species (localized).
    */
@@ -1032,6 +1033,7 @@ export interface ArticlesSelect<T extends boolean = true> {
  * via the `definition` "bee-info_select".
  */
 export interface BeeInfoSelect<T extends boolean = true> {
+  _order?: T;
   commonName?: T;
   slug?: T;
   scientificName?: T;

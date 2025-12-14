@@ -12,7 +12,7 @@ export const BeeInfo: CollectionConfig = {
   orderable: true,
   admin: {
     useAsTitle: 'commonName',
-    defaultColumns: ['speciesName', 'scientificName', 'flightTime', 'publishDate', 'updatedAt'],
+    defaultColumns: ['commonName', 'scientificName', 'flightTime', 'publishDate', 'updatedAt'],
     group: 'Content',
   },
   access: { read: () => true },

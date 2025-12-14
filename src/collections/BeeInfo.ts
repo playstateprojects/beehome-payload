@@ -177,7 +177,6 @@ export const BeeInfo: CollectionConfig = {
             },
           ],
         },
-
         // ========================================
         // BODY SECTIONS TAB
         // ========================================

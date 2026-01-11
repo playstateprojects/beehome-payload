@@ -36,5 +36,6 @@
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "explicit"
     }
-  }
+  },
+  "idf.pythonInstallPath": "/usr/local/bin/python3"
 }

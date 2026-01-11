@@ -27,7 +27,7 @@ export default async function HomePage() {
             width={65}
           />
         </picture>
-        {!user && <h1>Welcome to the pyload test.</h1>}
+        {!user && <h1>Wildbiene + Partner App CMS</h1>}
         {user && <h1>Welcome back, {user.email}</h1>}
         <div className="links">
           <a className="admin" href={payloadConfig.routes.admin} rel="noopener noreferrer">

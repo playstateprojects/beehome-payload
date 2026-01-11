@@ -14,93 +14,166 @@ export const ActionCards: CollectionConfig = {
   access: { read: () => true },
 
   fields: [
-    // Title — localized
     {
-      name: 'title',
-      type: 'text',
-      required: true,
-      localized: true,
-    },
-    {
-      name: 'slug',
-      type: 'text',
-      required: true,
-      localized: false,
-      hidden: true,
-    },
-    {
-      name: 'topic',
-      type: 'text',
-      required: true,
-      localized: true,
-      admin: { description: 'Appears top left.' },
-    },
-    {
-      name: 'tag',
-      type: 'text',
-      required: true,
-      localized: true,
-      admin: { description: 'Appears top right.' },
-    },
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Content',
+          fields: [
+            // Title — localized
+            {
+              name: 'title',
+              type: 'text',
+              required: true,
+              localized: true,
+            },
+            {
+              name: 'slug',
+              type: 'text',
+              required: true,
+              localized: false,
+              hidden: true,
+            },
+            {
+              name: 'topic',
+              type: 'text',
+              required: true,
+              localized: true,
+              admin: { description: 'Appears top left.' },
+            },
+            {
+              name: 'tag',
+              type: 'text',
+              required: true,
+              localized: true,
+              admin: { description: 'Appears top right.' },
+            },
 
-    // Slug — NOT localized (single canonical URL)
-    {
-      name: 'link',
-      type: 'text',
-      localized: false,
-      admin: { description: 'A link to follow when the action cards is clicked.' },
-    },
+            // Slug — NOT localized (single canonical URL)
+            {
+              name: 'link',
+              type: 'text',
+              localized: false,
+              admin: { description: 'A link to follow when the action cards is clicked.' },
+            },
 
-    // Hero image — NOT localized
-    {
-      name: 'image',
-      label: 'Image',
-      type: 'upload',
-      relationTo: 'media', // ensure you have a Media collection with uploads enabled
-      localized: false,
-    },
+            // Hero image — NOT localized
+            {
+              name: 'image',
+              label: 'Image',
+              type: 'upload',
+              relationTo: 'media', // ensure you have a Media collection with uploads enabled
+              localized: false,
+            },
 
-    // Body — localized rich text
-    {
-      name: 'body',
-      label: 'Body',
-      type: 'richText',
-      localized: true,
-    },
-
-    // Publish date — NOT localized
-    {
-      name: 'publishDate',
-      label: 'Publish date',
-      type: 'date',
-      defaultValue: () => new Date().toISOString(),
-      admin: { date: { pickerAppearance: 'dayAndTime' } },
-      localized: false,
-    },
-    {
-      name: 'endDate',
-      label: 'Publish date',
-      type: 'date',
-      defaultValue: () => new Date().toISOString(),
-      admin: { date: { pickerAppearance: 'dayAndTime' } },
-      localized: false,
-    },
-    {
-      name: 'multipleViews',
-      label: 'Multiple Views',
-      type: 'checkbox',
-      localized: false,
-      admin: { description: 'Show even if already viewed' },
-    },
-    {
-      name: 'displayToAllUsers',
-      label: 'Display to all.',
-      type: 'checkbox',
-      localized: false,
-      admin: {
-        description:
-          'Display this Action Card to all users. No rules will be checked before display',
-      },
+            // Body — localized rich text
+            {
+              name: 'body',
+              label: 'Body',
+              type: 'richText',
+              localized: true,
+            },
+            {
+              name: 'displayToAllUsers',
+              label: 'Display to all.',
+              type: 'checkbox',
+              localized: false,
+              admin: {
+                description:
+                  'Display this Action Card to all users. No rules will be checked before display',
+              },
+            },
+          ],
+        },
+        {
+          label: 'Scheduling',
+          fields: [
+            {
+              name: 'publishDate',
+              label: 'Publish date',
+              type: 'date',
+              defaultValue: () => new Date().toISOString(),
+              admin: {
+                date: { pickerAppearance: 'dayAndTime' },
+                description: 'The action card will only be displayed once this date is reached.',
+              },
+              localized: false,
+            },
+            {
+              name: 'endDate',
+              label: 'End Date',
+              type: 'date',
+              defaultValue: () => {
+                const date = new Date()
+                date.setMonth(date.getMonth() + 1)
+                return date.toISOString()
+              },
+              admin: {
+                date: { pickerAppearance: 'dayAndTime' },
+                description: 'The action card will not be displayed after this date.',
+              },
+              localized: false,
+            },
+            {
+              type: 'collapsible',
+              label: 'Advanced Scheduling',
+              admin: {
+                initCollapsed: true,
+              },
+              fields: [
+                {
+                  name: 'schedule',
+                  label: 'Repeat after',
+                  type: 'number',
+                  defaultValue: 365,
+                  localized: false,
+                  admin: {
+                    description:
+                      'The number of days between repeat displays. If set to 365, the user would receive the same message again next year.',
+                    placeholder: '365',
+                  },
+                },
+                {
+                  name: 'validMonths',
+                  label: 'Valid Months',
+                  type: 'select',
+                  hasMany: true,
+                  localized: false,
+                  admin: {
+                    description: 'Select the months that this action card is valid for.',
+                  },
+                  options: [
+                    { label: 'January', value: '1' },
+                    { label: 'February', value: '2' },
+                    { label: 'March', value: '3' },
+                    { label: 'April', value: '4' },
+                    { label: 'May', value: '5' },
+                    { label: 'June', value: '6' },
+                    { label: 'July', value: '7' },
+                    { label: 'August', value: '8' },
+                    { label: 'September', value: '9' },
+                    { label: 'October', value: '10' },
+                    { label: 'November', value: '11' },
+                    { label: 'December', value: '12' },
+                  ],
+                },
+                {
+                  name: 'limmit',
+                  label: 'Max number of possible displays',
+                  type: 'number',
+                  defaultValue: 999,
+                  localized: false,
+                  admin: {
+                    description:
+                      'Number of times a user can receive this message. When set to 1, the user will never see this action card again after the first display.',
+                    placeholder: '999',
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
     },
   ],
 

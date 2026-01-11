@@ -45,35 +45,30 @@
 
   // Here's how to configure an additional environment
   // It can be deployed with `CLOUDFLARE_ENV=staging pnpm run deploy`
-  // "env": {
-  //   "staging": {
-  //     "name": "my-app-staging",
-  //     "d1_databases": [
-  //       {
-  //         "binding": "D1",
-  //         "database_id": "DATABASE_ID",
-  //         "database_name": "my-app-staging",
-  //         "remote": true
-  //       }
-  //     ],
-  //     "services": [
-  //       // The service should match the "name" of your worker
-  //       // {
-  //       //   "binding": "WORKER_SELF_REFERENCE",
-  //       //   "service": "my-app-staging"
-  //       // },
-  //     ],
-  //     "r2_buckets": [
-  //       {
-  //         "binding": "R2",
-  //         "bucket_name": "my-app-staging"
-  //       }
-  //       // Create a R2 binding with the binding name "NEXT_INC_CACHE_R2_BUCKET"
-  //       // {
-  //       //   "binding": "NEXT_INC_CACHE_R2_BUCKET",
-  //       //   "bucket_name": "<BUCKET_NAME>",
-  //       // },
-  //     ]
-  //   }
-  // }
+  "env": {
+    "preview": {
+      "name": "beehome-payload-dev",
+      "d1_databases": [
+        {
+          "binding": "D1",
+          "database_id": "f766cd9b-33e6-43c7-b4bf-3a8560369d64", // TODO: Create dev D1 database and replace this
+          "database_name": "beehome-cms-preview",
+          "remote": true,
+        },
+      ],
+      "services": [
+        // The service should match the "name" of your worker
+        // {
+        //   "binding": "WORKER_SELF_REFERENCE",
+        //   "service": "beehome-payload-dev"
+        // },
+      ],
+      "r2_buckets": [
+        {
+          "binding": "R2",
+          "bucket_name": "beehome-cmsapp-dev", // TODO: Create this R2 bucket
+        },
+      ],
+    },
+  },
 }

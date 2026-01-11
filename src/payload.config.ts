@@ -1,6 +1,7 @@
 // storage-adapter-import-placeholder
 import { sqliteD1Adapter } from '@payloadcms/db-d1-sqlite' // database-adapter-import
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { BlocksFeature } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -18,13 +19,17 @@ import { InAppNotifications } from './collections/InAppNotifications'
 import ActionCards from './collections/ActionCards'
 import { Questionnaire } from './collections/Questionnaire'
 import { Badge } from './collections/Badge'
+import { ProductRecommendations } from './blocks/ProductRecommendations'
+import { SpaceActions } from './collections/SpaceActions'
+import BeeInfo from './collections/BeeInfo'
+import { SpaceProgressLevel } from './collections/SpaceProgressLevel'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-const cloudflareRemoteBindings = process.env.NODE_ENV === 'production'
 const cloudflare =
-  process.argv.find((value) => value.match(/^(generate|migrate):?/)) || !cloudflareRemoteBindings
+  process.argv.find((value) => value.match(/^(generate|migrate):?/)) ||
+  process.env.NODE_ENV !== 'production'
     ? await getCloudflareContextFromWrangler()
     : await getCloudflareContext({ async: true })
 
@@ -42,18 +47,27 @@ export default buildConfig({
   },
   collections: [
     Articles,
+    BeeInfo,
     InAppNotifications,
     ActionCards,
     Questionnaire,
     Badge,
-
+    SpaceActions,
     PushNotifications,
     SpaceTypes,
+    SpaceProgressLevel,
     Commitments,
     Users,
     Media,
   ],
-  editor: lexicalEditor(),
+  editor: lexicalEditor({
+    features: ({ defaultFeatures }) => [
+      ...defaultFeatures,
+      BlocksFeature({
+        blocks: [ProductRecommendations],
+      }),
+    ],
+  }),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
@@ -77,7 +91,6 @@ function getCloudflareContextFromWrangler(): Promise<CloudflareContext> {
     ({ getPlatformProxy }) =>
       getPlatformProxy({
         environment: process.env.CLOUDFLARE_ENV,
-        experimental: { remoteBindings: cloudflareRemoteBindings },
       } satisfies GetPlatformProxyOptions),
   )
 }

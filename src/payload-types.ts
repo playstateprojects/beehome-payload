@@ -68,31 +68,43 @@ export interface Config {
   blocks: {};
   collections: {
     articles: Article;
+    'bee-info': BeeInfo;
     'in-app-notifications': InAppNotification;
     'action-cards': ActionCard;
     questionnaire: Questionnaire;
     badges: Badge;
+    'space-actions': SpaceAction;
     'push-notifications': PushNotification;
     'space-types': SpaceType;
+    'space-progress-levels': SpaceProgressLevel;
     commitments: Commitment;
     users: User;
     media: Media;
+    'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    'space-types': {
+      commitments: 'commitments';
+    };
+  };
   collectionsSelect: {
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
+    'bee-info': BeeInfoSelect<false> | BeeInfoSelect<true>;
     'in-app-notifications': InAppNotificationsSelect<false> | InAppNotificationsSelect<true>;
     'action-cards': ActionCardsSelect<false> | ActionCardsSelect<true>;
     questionnaire: QuestionnaireSelect<false> | QuestionnaireSelect<true>;
     badges: BadgesSelect<false> | BadgesSelect<true>;
+    'space-actions': SpaceActionsSelect<false> | SpaceActionsSelect<true>;
     'push-notifications': PushNotificationsSelect<false> | PushNotificationsSelect<true>;
     'space-types': SpaceTypesSelect<false> | SpaceTypesSelect<true>;
+    'space-progress-levels': SpaceProgressLevelsSelect<false> | SpaceProgressLevelsSelect<true>;
     commitments: CommitmentsSelect<false> | CommitmentsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -140,6 +152,10 @@ export interface Article {
    * Auto-filled from Title if left blank.
    */
   slug?: string | null;
+  /**
+   * A short Tagline that will apear on the homepage and at the top of each article in a script font.
+   */
+  tagline?: string | null;
   heroImage?: (number | null) | Media;
   intro?: {
     root: {
@@ -176,6 +192,38 @@ export interface Article {
   publishDate?: string | null;
   author?: string | null;
   reviewStatus?: string | null;
+  /**
+   * This article will only be shown to users with these space types.
+   */
+  spaceTypes?: (number | SpaceType)[] | null;
+  /**
+   * This article will only be shown to users who have these commitments.
+   */
+  includedCommitments?: (number | Commitment)[] | null;
+  /**
+   * This article will only be shown to users who do not have these commitments.
+   */
+  excludedCommitments?: (number | Commitment)[] | null;
+  /**
+   * Select the months that this article is valid for. All months are selected by default.
+   */
+  validMonths?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')[] | null;
+  /**
+   * Link to related articles.
+   */
+  relatedArticles?: (number | Article)[] | null;
+  /**
+   * Link to other related bee species.
+   */
+  relatedBees?: (number | BeeInfo)[] | null;
+  /**
+   * Link to related questionnaires.
+   */
+  relatedQuestionnaires?: (number | Questionnaire)[] | null;
+  /**
+   * Link to related commitments.
+   */
+  relatedCommitments?: (number | Commitment)[] | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -199,50 +247,85 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "in-app-notifications".
+ * via the `definition` "space-types".
  */
-export interface InAppNotification {
+export interface SpaceType {
   id: number;
-  title: string;
-  message: string;
-  image?: (number | null) | Media;
-  actionButtonText?: string | null;
+  _order?: string | null;
   /**
-   * Will not be displayed before this date
+   * Commitments associated with this space type
    */
-  publishDate?: string | null;
+  commitments?: {
+    docs?: (number | Commitment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   /**
-   * Will not be displayed after this date
+   * Human-readable name (localized).
    */
-  endDate?: string | null;
-  schedule?: number | null;
-  limmit?: number | null;
-  key: string;
+  label: string;
+  /**
+   * The default image to display if the user has not yet uploaded an image.
+   */
+  defaultImage?: (number | null) | Media;
+  /**
+   * Single emoji character (optional)
+   */
+  emoji?: string | null;
+  description?: string | null;
+  sort?: number | null;
+  active?: boolean | null;
+  /**
+   * Machine identifier (e.g. balcony, garden) — must match D1.space_types.key
+   */
+  slug: string;
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "action-cards".
+ * via the `definition` "commitments".
  */
-export interface ActionCard {
+export interface Commitment {
   id: number;
+  _order?: string | null;
+  /**
+   * Human-readable label (localized).
+   */
   title: string;
-  slug: string;
+  description?: string | null;
   /**
-   * Appears top left.
+   * Single emoji character (optional)
    */
-  topic: string;
+  emoji?: string | null;
   /**
-   * Appears top right.
+   * Rough impact score 0-100
    */
-  tag: string;
+  impact_score?: number | null;
   /**
-   * A link to follow when the action cards is clicked.
+   * Link text
    */
-  link?: string | null;
-  image?: (number | null) | Media;
-  body?: {
+  linkText?: string | null;
+  /**
+   * Space types this commitment applies to
+   */
+  space_types: (number | SpaceType)[];
+  /**
+   * Title for the detail page
+   */
+  detailTitle?: string | null;
+  /**
+   * Subtitle for the detail page
+   */
+  detailSubtitle?: string | null;
+  /**
+   * Title for the list of actions.
+   */
+  detailListTitle?: string | null;
+  /**
+   * Main content for the detail page
+   */
+  content?: {
     root: {
       type: string;
       children: {
@@ -257,18 +340,144 @@ export interface ActionCard {
     };
     [k: string]: unknown;
   } | null;
-  publishDate?: string | null;
-  endDate?: string | null;
   /**
-   * Show even if already viewed
+   * Machine key (e.g. no_pesticides, plant_native_flowers)
    */
-  multipleViews?: boolean | null;
+  slug: string;
   /**
-   * Display this Action Card to all users. No rules will be checked before display
+   * Parent commitment (optional)
    */
-  displayToAllUsers?: boolean | null;
+  parent?: (number | null) | Commitment;
+  /**
+   * Default info article shown for all space types (unless overridden below)
+   */
+  infoArticle?: (number | null) | Article;
+  /**
+   * Override the info article for specific space types
+   */
+  space_type_article_overrides?:
+    | {
+        /**
+         * Space type to override
+         */
+        space_type: number | SpaceType;
+        /**
+         * Article to show for this space type
+         */
+        info_article: number | Article;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bee-info".
+ */
+export interface BeeInfo {
+  id: number;
+  _order?: string | null;
+  /**
+   * Common name of the bee species (localized).
+   */
+  commonName: string;
+  /**
+   * Auto-generated from Species Name if left blank.
+   */
+  slug?: string | null;
+  /**
+   * Latin scientific name (e.g., Apis mellifera).
+   */
+  scientificName: string;
+  /**
+   * URL to the GBIF (Global Biodiversity Information Facility) species page.
+   */
+  gbifLink?: string | null;
+  /**
+   * URL to the iNaturalist species page.
+   */
+  inaturalistLink?: string | null;
+  /**
+   * A short tagline that appears at the top of the bee info page.
+   */
+  tagline?: string | null;
+  /**
+   * A short summary paragraph introducing the bee species.
+   */
+  intro?: string | null;
+  /**
+   * Main header image for this bee species.
+   */
+  heroImage?: (number | null) | Media;
+  /**
+   * Size description (e.g., "8-12mm").
+   */
+  size?: string | null;
+  /**
+   * When this bee is active (e.g., "March - September").
+   */
+  flightTime?: string | null;
+  /**
+   * Geographic distribution of the species.
+   */
+  distribution?: string | null;
+  /**
+   * Preferred habitat types.
+   */
+  habitat?: string | null;
+  /**
+   * Conservation status of the species.
+   */
+  status?: ('common' | 'stable' | 'declining' | 'threatened' | 'endangered' | 'unknown') | null;
+  /**
+   * Notable characteristics or behaviors of this bee species.
+   */
+  specialTrait?: string | null;
+  /**
+   * Add multiple content sections with titles, rich text, and optional images.
+   */
+  sections?:
+    | {
+        /**
+         * An optional title for the section.
+         */
+        sectionTitle: string;
+        sectionBody: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        /**
+         * Optional image for this section.
+         */
+        sectionImage?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Link to related articles.
+   */
+  relatedArticles?: (number | Article)[] | null;
+  /**
+   * Link to other related bee species.
+   */
+  relatedBees?: (number | BeeInfo)[] | null;
+  publishDate?: string | null;
+  author?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -340,6 +549,116 @@ export interface Questionnaire {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "in-app-notifications".
+ */
+export interface InAppNotification {
+  id: number;
+  title: string;
+  message: string;
+  image?: (number | null) | Media;
+  actionButtonText?: string | null;
+  actionButtonLink?: string | null;
+  /**
+   * Add tags to categorize this notification.
+   */
+  tags?: string[] | null;
+  /**
+   * This note will not be displayed or used in the application but is a note for future reference as to the conditions under which this notification will be selected.
+   */
+  conditionNotes?: string | null;
+  /**
+   * The notification will only be displayed once this date is reached.
+   */
+  publishDate?: string | null;
+  /**
+   * The notification will not be displayed after this date.
+   */
+  endDate?: string | null;
+  /**
+   * When checked, the message will be sent to all users of the app. All conditional checks will be skipped and all users will receive the notification.
+   */
+  allUsers?: boolean | null;
+  /**
+   * The number of days between repeat displays. If set to 365, the user would receive the same message again next year.
+   */
+  schedule?: number | null;
+  /**
+   * Select the months that this notification is valid for.
+   */
+  validMonths?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')[] | null;
+  /**
+   * Number of times a user can receive this message. When set to 1, the user will never see this notification again after the first display.
+   */
+  limmit?: number | null;
+  key: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "action-cards".
+ */
+export interface ActionCard {
+  id: number;
+  title: string;
+  slug: string;
+  /**
+   * Appears top left.
+   */
+  topic: string;
+  /**
+   * Appears top right.
+   */
+  tag: string;
+  /**
+   * A link to follow when the action cards is clicked.
+   */
+  link?: string | null;
+  image?: (number | null) | Media;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Display this Action Card to all users. No rules will be checked before display
+   */
+  displayToAllUsers?: boolean | null;
+  /**
+   * The action card will only be displayed once this date is reached.
+   */
+  publishDate?: string | null;
+  /**
+   * The action card will not be displayed after this date.
+   */
+  endDate?: string | null;
+  /**
+   * The number of days between repeat displays. If set to 365, the user would receive the same message again next year.
+   */
+  schedule?: number | null;
+  /**
+   * Select the months that this action card is valid for.
+   */
+  validMonths?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')[] | null;
+  /**
+   * Number of times a user can receive this message. When set to 1, the user will never see this action card again after the first display.
+   */
+  limmit?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "badges".
  */
 export interface Badge {
@@ -352,11 +671,57 @@ export interface Badge {
   icon?: (number | null) | Media;
   page: {
     title: string;
-    description: string;
+    subtitle: string;
+    description?: string | null;
     image?: (number | null) | Media;
     actionButton?: string | null;
     actionButtonLink?: string | null;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "space-actions".
+ */
+export interface SpaceAction {
+  id: number;
+  _order?: string | null;
+  /**
+   * Human-readable name (localized).
+   */
+  label: string;
+  description?: string | null;
+  tagline?: string | null;
+  /**
+   * This message will only be shown to users with these space types.
+   */
+  includedSpaceTypes?: (number | SpaceType)[] | null;
+  /**
+   * This message will only be shown to users who have these commitments.
+   */
+  includedCommitments?: (number | Commitment)[] | null;
+  /**
+   * This message will only be shown to users who do not have these commitments.
+   */
+  excludedCommitments?: (number | Commitment)[] | null;
+  /**
+   * Total number of commitments required to see this message
+   */
+  minCommitments?: number | null;
+  /**
+   * The Maximum number of commitments required to see this message
+   */
+  maxCommitments?: number | null;
+  /**
+   * Link for the action card
+   */
+  link?: string | null;
+  active?: boolean | null;
+  /**
+   * Machine identifier — must match D1.space_actions.key
+   */
+  slug: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -368,85 +733,127 @@ export interface PushNotification {
   id: number;
   title: string;
   message: string;
+  /**
+   * To link to article use mybeehome://article/article-slug. To link to a questionnaire use mybeehome://questionnaire/questionnaire-slug
+   */
+  deepLink?: string | null;
   image?: (number | null) | Media;
+  /**
+   * Add tags to categorize this notification.
+   */
+  tags?: string[] | null;
+  /**
+   * This note will not be displayed or used in the application but is a note for future reference as to the conditions under which this notification will be selected.
+   */
+  conditionNotes?: string | null;
+  /**
+   * The notification will only be sent once this date is reached.
+   */
   publishDate?: string | null;
+  /**
+   * When checked, the message will be sent to all users of the app. All conditional checks will be skipped and all users will receive the notification.
+   */
+  allUsers?: boolean | null;
+  /**
+   * Select the months that this notification is valid for.
+   */
+  validMonths?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')[] | null;
+  /**
+   * The number of days between repeat sends. If set to 365, the user would receive the same message again next year.
+   */
   schedule?: number | null;
+  /**
+   * Number of times a user can receive this message. When set to 1, the user will never be sent this notification again. Please note this does not include 'reads'. In other words, if sends is set to 8, the user will receive the message a maximum of 8 times, but only if they don't open it.
+   */
   limmit?: number | null;
-  key: string;
+  slug: string;
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "space-types".
+ * via the `definition` "space-progress-levels".
  */
-export interface SpaceType {
+export interface SpaceProgressLevel {
   id: number;
+  _order?: string | null;
   /**
-   * Autogenerated UUID; do not edit. Used to match D1 table rows.
-   */
-  stableId?: string | null;
-  /**
-   * Machine key (e.g. balcony, garden) — must match D1.space_types.key
-   */
-  key: string;
-  /**
-   * Human-readable name (localized).
-   */
-  label: string;
-  description?: string | null;
-  sort?: number | null;
-  active?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "commitments".
- */
-export interface Commitment {
-  id: number;
-  /**
-   * Autogenerated UUID; do not edit. Used to match D1 table rows.
-   */
-  stableId?: string | null;
-  /**
-   * Machine key (e.g. no_pesticides, plant_native_flowers)
-   */
-  key: string;
-  /**
-   * Human-readable label (localized).
+   * The Title
    */
   title: string;
-  description?: string | null;
   /**
-   * Single emoji character (optional)
+   * Auto-filled fromTitle if left blank (e.g., mini-wildbienen-oase)
    */
-  emoji?: string | null;
+  slug: string;
   /**
-   * e.g. planting, maintenance, water, nesting
+   * Display order of this level
    */
-  category?: string | null;
+  order: number;
   /**
-   * Rough impact score 0-100
+   * Hex color code (e.g., #80B873)
    */
-  impact_score?: number | null;
+  color: string;
   /**
-   * Month when this commitment becomes relevant (1-12)
+   * Hex color code for the lighter color (e.g., #80B873)
    */
-  seasonal_start_month?: number | null;
+  highlightColor: string;
   /**
-   * Month when this commitment ends (1-12)
+   * A shortDescription
    */
-  seasonal_end_month?: number | null;
+  description: string;
   /**
-   * NULL for one-off, or number of days between repetitions (e.g. 30)
+   * Label for the action button (localized)
    */
-  repeat_interval_days?: number | null;
+  actionButtonLabel?: string | null;
   /**
-   * Space types this commitment applies to
+   * URL or link for the action button
    */
-  space_types: (number | SpaceType)[];
+  actionButtonLink?: string | null;
+  requirements: {
+    /**
+     * Minimum number of active categories required
+     */
+    minActiveCategories: number;
+    categoryRequirements?:
+      | {
+          /**
+           * The parent category slug (e.g., no_pesticides, rckzugsorte)
+           */
+          parentSlug: string;
+          /**
+           * Number of actions required from this category
+           */
+          required: number;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  successPage?: {
+    /**
+     * Title for the success page
+     */
+    title?: string | null;
+    /**
+     * Image to display on the success page
+     */
+    image?: (number | null) | Media;
+    /**
+     * Main text content
+     */
+    mainText?: string | null;
+    /**
+     * Secondary text content
+     */
+    subText?: string | null;
+    /**
+     * Label for the action button
+     */
+    actionButtonLabel?: string | null;
+    /**
+     * URL or link for the action button
+     */
+    actionButtonLink?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -477,6 +884,23 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv".
+ */
+export interface PayloadKv {
+  id: number;
+  key: string;
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -485,6 +909,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'articles';
         value: number | Article;
+      } | null)
+    | ({
+        relationTo: 'bee-info';
+        value: number | BeeInfo;
       } | null)
     | ({
         relationTo: 'in-app-notifications';
@@ -503,12 +931,20 @@ export interface PayloadLockedDocument {
         value: number | Badge;
       } | null)
     | ({
+        relationTo: 'space-actions';
+        value: number | SpaceAction;
+      } | null)
+    | ({
         relationTo: 'push-notifications';
         value: number | PushNotification;
       } | null)
     | ({
         relationTo: 'space-types';
         value: number | SpaceType;
+      } | null)
+    | ({
+        relationTo: 'space-progress-levels';
+        value: number | SpaceProgressLevel;
       } | null)
     | ({
         relationTo: 'commitments';
@@ -571,6 +1007,7 @@ export interface PayloadMigration {
 export interface ArticlesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  tagline?: T;
   heroImage?: T;
   intro?: T;
   body?: T;
@@ -579,6 +1016,50 @@ export interface ArticlesSelect<T extends boolean = true> {
   publishDate?: T;
   author?: T;
   reviewStatus?: T;
+  spaceTypes?: T;
+  includedCommitments?: T;
+  excludedCommitments?: T;
+  validMonths?: T;
+  relatedArticles?: T;
+  relatedBees?: T;
+  relatedQuestionnaires?: T;
+  relatedCommitments?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bee-info_select".
+ */
+export interface BeeInfoSelect<T extends boolean = true> {
+  _order?: T;
+  commonName?: T;
+  slug?: T;
+  scientificName?: T;
+  gbifLink?: T;
+  inaturalistLink?: T;
+  tagline?: T;
+  intro?: T;
+  heroImage?: T;
+  size?: T;
+  flightTime?: T;
+  distribution?: T;
+  habitat?: T;
+  status?: T;
+  specialTrait?: T;
+  sections?:
+    | T
+    | {
+        sectionTitle?: T;
+        sectionBody?: T;
+        sectionImage?: T;
+        id?: T;
+      };
+  relatedArticles?: T;
+  relatedBees?: T;
+  publishDate?: T;
+  author?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -592,9 +1073,14 @@ export interface InAppNotificationsSelect<T extends boolean = true> {
   message?: T;
   image?: T;
   actionButtonText?: T;
+  actionButtonLink?: T;
+  tags?: T;
+  conditionNotes?: T;
   publishDate?: T;
   endDate?: T;
+  allUsers?: T;
   schedule?: T;
+  validMonths?: T;
   limmit?: T;
   key?: T;
   updatedAt?: T;
@@ -612,10 +1098,12 @@ export interface ActionCardsSelect<T extends boolean = true> {
   link?: T;
   image?: T;
   body?: T;
+  displayToAllUsers?: T;
   publishDate?: T;
   endDate?: T;
-  multipleViews?: T;
-  displayToAllUsers?: T;
+  schedule?: T;
+  validMonths?: T;
+  limmit?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -669,6 +1157,7 @@ export interface BadgesSelect<T extends boolean = true> {
     | T
     | {
         title?: T;
+        subtitle?: T;
         description?: T;
         image?: T;
         actionButton?: T;
@@ -679,16 +1168,41 @@ export interface BadgesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "space-actions_select".
+ */
+export interface SpaceActionsSelect<T extends boolean = true> {
+  _order?: T;
+  label?: T;
+  description?: T;
+  tagline?: T;
+  includedSpaceTypes?: T;
+  includedCommitments?: T;
+  excludedCommitments?: T;
+  minCommitments?: T;
+  maxCommitments?: T;
+  link?: T;
+  active?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "push-notifications_select".
  */
 export interface PushNotificationsSelect<T extends boolean = true> {
   title?: T;
   message?: T;
+  deepLink?: T;
   image?: T;
+  tags?: T;
+  conditionNotes?: T;
   publishDate?: T;
+  allUsers?: T;
+  validMonths?: T;
   schedule?: T;
   limmit?: T;
-  key?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -697,12 +1211,54 @@ export interface PushNotificationsSelect<T extends boolean = true> {
  * via the `definition` "space-types_select".
  */
 export interface SpaceTypesSelect<T extends boolean = true> {
-  stableId?: T;
-  key?: T;
+  _order?: T;
+  commitments?: T;
   label?: T;
+  defaultImage?: T;
+  emoji?: T;
   description?: T;
   sort?: T;
   active?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "space-progress-levels_select".
+ */
+export interface SpaceProgressLevelsSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  slug?: T;
+  order?: T;
+  color?: T;
+  highlightColor?: T;
+  description?: T;
+  actionButtonLabel?: T;
+  actionButtonLink?: T;
+  requirements?:
+    | T
+    | {
+        minActiveCategories?: T;
+        categoryRequirements?:
+          | T
+          | {
+              parentSlug?: T;
+              required?: T;
+              id?: T;
+            };
+      };
+  successPage?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        mainText?: T;
+        subText?: T;
+        actionButtonLabel?: T;
+        actionButtonLink?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -711,17 +1267,27 @@ export interface SpaceTypesSelect<T extends boolean = true> {
  * via the `definition` "commitments_select".
  */
 export interface CommitmentsSelect<T extends boolean = true> {
-  stableId?: T;
-  key?: T;
+  _order?: T;
   title?: T;
   description?: T;
   emoji?: T;
-  category?: T;
   impact_score?: T;
-  seasonal_start_month?: T;
-  seasonal_end_month?: T;
-  repeat_interval_days?: T;
+  linkText?: T;
   space_types?: T;
+  detailTitle?: T;
+  detailSubtitle?: T;
+  detailListTitle?: T;
+  content?: T;
+  slug?: T;
+  parent?: T;
+  infoArticle?: T;
+  space_type_article_overrides?:
+    | T
+    | {
+        space_type?: T;
+        info_article?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -763,6 +1329,14 @@ export interface MediaSelect<T extends boolean = true> {
   filesize?: T;
   width?: T;
   height?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv_select".
+ */
+export interface PayloadKvSelect<T extends boolean = true> {
+  key?: T;
+  data?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

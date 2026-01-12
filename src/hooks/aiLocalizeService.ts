@@ -16,6 +16,7 @@ type LocalizeConfig = {
   targetLocales?: string[]
   dryRun?: boolean
   skipIfSlateTarget?: boolean
+  forceOverwrite?: boolean
 }
 
 type FieldMeta = { type: 'text' | 'textarea' | 'richText' }
@@ -43,6 +44,12 @@ function detectLocalizedFieldsWithMeta(collection: any): { fields: string[]; met
       }
 
       if (field?.fields) visit(field.fields, hasName ? path : prefix)
+      if (field?.tabs) {
+        // Handle tabs structure - visit each tab's fields
+        for (const tab of field.tabs || []) {
+          visit(tab.fields || [], prefix)
+        }
+      }
       if (field?.blocks) {
         for (const b of field.blocks || []) {
           visit(b.fields || [], hasName ? `${path}.${b.slug}` : prefix)
@@ -81,33 +88,45 @@ function looksLikeLexical(val: any): boolean {
 
 function slateToPlain(val: any): string {
   if (!Array.isArray(val)) return ''
-  const collect = (node: any): string => {
-    if (!node || typeof node !== 'object') return ''
-    if (typeof node.text === 'string') return node.text
-    if (Array.isArray(node.children)) return node.children.map(collect).join('')
-    return ''
+  const segments: string[] = []
+
+  const collect = (node: any): void => {
+    if (!node || typeof node !== 'object') return
+    if (typeof node.text === 'string') {
+      segments.push(node.text)
+      return
+    }
+    if (Array.isArray(node.children)) {
+      node.children.forEach(collect)
+    }
   }
-  return val
-    .map(collect)
-    .join('\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
+
+  val.forEach(collect)
+
+  // Use a unique delimiter to preserve text node boundaries
+  return segments.map((seg, idx) => `<SEG${idx}>${seg}</SEG${idx}>`).join('')
 }
 
 function lexicalToPlain(val: any): string {
   if (!val?.root?.children) return ''
-  const walk = (nodes: any[]): string =>
-    nodes
-      .map((n) => {
-        if (n.type === 'text' && typeof n.text === 'string') return n.text
-        if (Array.isArray(n.children)) return walk(n.children)
-        if (n.type === 'linebreak') return '\n'
-        return ''
-      })
-      .join('')
-  return walk(val.root.children)
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
+  const segments: string[] = []
+
+  const walk = (nodes: any[]) => {
+    for (const n of nodes) {
+      if (n.type === 'text' && typeof n.text === 'string') {
+        segments.push(n.text)
+      } else if (Array.isArray(n.children)) {
+        walk(n.children)
+      } else if (n.type === 'linebreak') {
+        segments.push('\n')
+      }
+    }
+  }
+
+  walk(val.root.children)
+
+  // Use a unique delimiter to preserve text node boundaries
+  return segments.map((seg, idx) => `<SEG${idx}>${seg}</SEG${idx}>`).join('')
 }
 
 function translateLexicalContent(source: any, translatedText: string): any {
@@ -115,6 +134,7 @@ function translateLexicalContent(source: any, translatedText: string): any {
 
   const result = JSON.parse(JSON.stringify(source))
 
+  // Collect all text nodes in order
   const textNodes: any[] = []
   const findTextNodes = (nodes: any[]) => {
     for (const node of nodes || []) {
@@ -128,10 +148,46 @@ function translateLexicalContent(source: any, translatedText: string): any {
   }
   findTextNodes(result.root.children)
 
-  if (textNodes.length > 0) {
-    textNodes[0].text = translatedText
-    for (let i = 1; i < textNodes.length; i++) {
-      textNodes[i].text = ''
+  if (textNodes.length === 0) return result
+
+  // Extract translated segments from the <SEG> markers
+  const segmentMatches: string[] = []
+  for (let i = 0; i < textNodes.length; i++) {
+    const regex = new RegExp(`<SEG${i}>([\\s\\S]*?)</SEG${i}>`)
+    const match = translatedText.match(regex)
+    if (match) {
+      segmentMatches.push(match[1])
+    } else {
+      // Fallback: if markers not found, keep original or empty
+      segmentMatches.push('')
+    }
+  }
+
+  // If no segments found with markers, fall back to proportional distribution
+  if (segmentMatches.every(s => s === '')) {
+    const originalSegments = textNodes.map(n => n.text || '')
+    const totalOriginalLength = originalSegments.join('').length || 1
+    const translatedWords = translatedText.replace(/<SEG\d+>|<\/SEG\d+>/g, '').split(/(\s+)/)
+
+    let wordIndex = 0
+    for (let i = 0; i < textNodes.length; i++) {
+      const originalLength = originalSegments[i].length
+      const proportion = originalLength / totalOriginalLength
+      const wordsToTake = Math.max(1, Math.round(translatedWords.length * proportion))
+
+      const assignedWords = translatedWords.slice(wordIndex, wordIndex + wordsToTake)
+      textNodes[i].text = assignedWords.join('')
+      wordIndex += wordsToTake
+    }
+
+    if (wordIndex < translatedWords.length) {
+      const remaining = translatedWords.slice(wordIndex).join('')
+      textNodes[textNodes.length - 1].text += remaining
+    }
+  } else {
+    // Apply the matched segments to text nodes
+    for (let i = 0; i < textNodes.length; i++) {
+      textNodes[i].text = segmentMatches[i] || ''
     }
   }
 
@@ -143,6 +199,7 @@ function translateSlateContent(source: any, translatedText: string): any {
 
   const result = JSON.parse(JSON.stringify(source))
 
+  // Collect all text nodes in order
   const textNodes: any[] = []
   const findTextNodes = (nodes: any[]) => {
     for (const node of nodes || []) {
@@ -156,10 +213,45 @@ function translateSlateContent(source: any, translatedText: string): any {
   }
   findTextNodes(result)
 
-  if (textNodes.length > 0) {
-    textNodes[0].text = translatedText
-    for (let i = 1; i < textNodes.length; i++) {
-      textNodes[i].text = ''
+  if (textNodes.length === 0) return result
+
+  // Extract translated segments from the <SEG> markers
+  const segmentMatches: string[] = []
+  for (let i = 0; i < textNodes.length; i++) {
+    const regex = new RegExp(`<SEG${i}>([\\s\\S]*?)</SEG${i}>`)
+    const match = translatedText.match(regex)
+    if (match) {
+      segmentMatches.push(match[1])
+    } else {
+      segmentMatches.push('')
+    }
+  }
+
+  // If no segments found with markers, fall back to proportional distribution
+  if (segmentMatches.every(s => s === '')) {
+    const originalSegments = textNodes.map(n => n.text || '')
+    const totalOriginalLength = originalSegments.join('').length || 1
+    const translatedWords = translatedText.replace(/<SEG\d+>|<\/SEG\d+>/g, '').split(/(\s+)/)
+
+    let wordIndex = 0
+    for (let i = 0; i < textNodes.length; i++) {
+      const originalLength = originalSegments[i].length
+      const proportion = originalLength / totalOriginalLength
+      const wordsToTake = Math.max(1, Math.round(translatedWords.length * proportion))
+
+      const assignedWords = translatedWords.slice(wordIndex, wordIndex + wordsToTake)
+      textNodes[i].text = assignedWords.join('')
+      wordIndex += wordsToTake
+    }
+
+    if (wordIndex < translatedWords.length) {
+      const remaining = translatedWords.slice(wordIndex).join('')
+      textNodes[textNodes.length - 1].text += remaining
+    }
+  } else {
+    // Apply the matched segments to text nodes
+    for (let i = 0; i < textNodes.length; i++) {
+      textNodes[i].text = segmentMatches[i] || ''
     }
   }
 
@@ -213,6 +305,7 @@ function buildPrompt(params: {
     `Return a strict JSON object with exactly these keys: ${fields.map((f) => `"${f}"`).join(', ')}.`,
     `Preserve meaning, tone, and domain terms.`,
     `Keep placeholders like {name}, {count}, %{var} unchanged.`,
+    `CRITICAL: Some values contain <SEG0>, <SEG1>, etc. markers that separate text segments. You MUST preserve these exact markers in your translation and translate the text between them. Example: "<SEG0>hello</SEG0><SEG1>world</SEG1>" should become "<SEG0>hallo</SEG0><SEG1>Welt</SEG1>".`,
     `If a source key is empty, return an empty string for that key.`,
     `No markdown. No extra keys. No explanations.`,
   ].join(' ')
@@ -225,6 +318,10 @@ function buildPrompt(params: {
   }
   if (extraContext) userObj.context = extraContext
   return { sys, user: JSON.stringify(userObj, null, 2) }
+}
+
+function stripSegmentMarkers(text: string): string {
+  return text.replace(/<SEG\d+>|<\/SEG\d+>/g, '')
 }
 
 function contentScore(
@@ -241,13 +338,19 @@ function contentScore(
       score += 1
       continue
     }
-    if (looksLikeSlate(val) && slateToPlain(val).length > 0) {
-      score += 1
-      continue
+    if (looksLikeSlate(val)) {
+      const plainText = stripSegmentMarkers(slateToPlain(val))
+      if (plainText.trim().length > 0) {
+        score += 1
+        continue
+      }
     }
-    if (looksLikeLexical(val) && lexicalToPlain(val).length > 0) {
-      score += 1
-      continue
+    if (looksLikeLexical(val)) {
+      const plainText = stripSegmentMarkers(lexicalToPlain(val))
+      if (plainText.trim().length > 0) {
+        score += 1
+        continue
+      }
     }
   }
   return score
@@ -364,14 +467,26 @@ export async function localizeDocument(
       const fieldsMissing: string[] = []
       // Only check fields that have content in the source
       for (const f of fieldsWithContent) {
+        // If forceOverwrite is true, always include the field
+        if (config.forceOverwrite) {
+          fieldsMissing.push(f)
+          continue
+        }
+
         const v = getByPath(docAllLocales, f)
         const val = typeof v === 'object' && v !== null ? v[locale] : undefined
         const kind = fieldMeta.get(f)?.type
         let empty = false
         if (kind === 'richText') {
           if (val == null) empty = true
-          else if (looksLikeSlate(val)) empty = slateToPlain(val).trim().length === 0
-          else if (looksLikeLexical(val)) empty = lexicalToPlain(val).trim().length === 0
+          else if (looksLikeSlate(val)) {
+            const plainText = stripSegmentMarkers(slateToPlain(val))
+            empty = plainText.trim().length === 0
+          }
+          else if (looksLikeLexical(val)) {
+            const plainText = stripSegmentMarkers(lexicalToPlain(val))
+            empty = plainText.trim().length === 0
+          }
           else if (Array.isArray(val)) empty = val.length === 0
           else if (typeof val === 'string') empty = val.trim().length === 0
           else empty = true

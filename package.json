@@ -21,6 +21,11 @@
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview --env=$CLOUDFLARE_ENV",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "sync:export": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/sync-collections.ts --export",
+    "sync:export:prod": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/sync-collections.ts --export",
+    "sync:import": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/sync-collections.ts --import",
+    "sync:import:dev": "cross-env CLOUDFLARE_ENV=preview NODE_OPTIONS=--no-deprecation tsx ./scripts/sync-collections.ts --import",
+    "sync:prod-to-dev": "pnpm sync:export:prod && pnpm sync:import:dev",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" pnpm exec playwright test",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"

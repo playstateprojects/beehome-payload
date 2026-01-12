@@ -30,6 +30,15 @@ export const Articles: CollectionConfig = {
           return Response.json({ success: false, message: 'No document ID provided' })
         }
 
+        // Read forceOverwrite from request body
+        let forceOverwrite = false
+        try {
+          const body = await req.json?.()
+          forceOverwrite = body?.forceOverwrite === true
+        } catch {
+          // If no body or JSON parsing fails, use default
+        }
+
         try {
           const result = await localizeDocument(
             payload,
@@ -43,7 +52,8 @@ export const Articles: CollectionConfig = {
               maxTokens: 1300,
             },
             {
-              fields: ['body', 'intro', 'title', 'actionButton'],
+              fields: ['body', 'intro', 'title', 'actionButton', 'tagline'],
+              forceOverwrite,
               // sourceLocale omitted - will auto-detect which locale has the most content
             },
           )
@@ -60,17 +70,7 @@ export const Articles: CollectionConfig = {
   ],
 
   fields: [
-    // AI Localize Button
-    {
-      name: 'localizeButton',
-      type: 'ui',
-      admin: {
-        components: {
-          Field: '@/components/LocalizeButton#LocalizeButton',
-        },
-      },
-    },
-    // Title — localized
+    // AI Localize Button - positioned outside tabs, always visible
     {
       type: 'tabs',
       tabs: [
@@ -333,6 +333,15 @@ export const Articles: CollectionConfig = {
           ],
         },
       ],
+    },
+    {
+      name: 'localizeButton',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/components/LocalizeButton#LocalizeButton',
+        },
+      },
     },
   ],
 

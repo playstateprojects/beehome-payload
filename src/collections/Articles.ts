@@ -30,11 +30,13 @@ export const Articles: CollectionConfig = {
           return Response.json({ success: false, message: 'No document ID provided' })
         }
 
-        // Read forceOverwrite from request body
+        // Read forceOverwrite and sourceLocale from request body
         let forceOverwrite = false
+        let sourceLocale: string | undefined
         try {
-          const body = await req.json?.()
+          const body = (await req.json?.()) as { forceOverwrite?: boolean; sourceLocale?: string } | undefined
           forceOverwrite = body?.forceOverwrite === true
+          sourceLocale = body?.sourceLocale
         } catch {
           // If no body or JSON parsing fails, use default
         }
@@ -45,16 +47,9 @@ export const Articles: CollectionConfig = {
             'articles',
             id as string,
             {
-              baseURL: 'https://api.deepseek.com',
-              apiKey: process.env.DEEPSEEK_API_KEY!,
-              model: 'deepseek-chat',
-              temperature: 0.2,
-              maxTokens: 1300,
-            },
-            {
               fields: ['body', 'intro', 'title', 'actionButton', 'tagline'],
               forceOverwrite,
-              // sourceLocale omitted - will auto-detect which locale has the most content
+              sourceLocale, // Use the locale from the request (current locale in UI)
             },
           )
 

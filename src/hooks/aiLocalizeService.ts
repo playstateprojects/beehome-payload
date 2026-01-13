@@ -1,10 +1,10 @@
 // src/hooks/aiLocalizeService.ts
-import type { Payload } from 'payload'
+import type { CollectionSlug, Payload } from 'payload'
 
 type ClientOpts = {
   baseURL?: string
-  apiKey: string
-  model: string
+  apiKey?: string
+  model?: string
   temperature?: number
   maxTokens?: number
   timeoutMs?: number
@@ -361,11 +361,21 @@ function contentScore(
  */
 export async function localizeDocument(
   payload: Payload,
-  collectionSlug: string,
+  collectionSlug: CollectionSlug,
   docId: string | number,
-  client: ClientOpts,
   config: LocalizeConfig = {},
+  clientOverrides?: Partial<ClientOpts>,
 ): Promise<{ success: boolean; message: string; localesUpdated?: string[] }> {
+  // Default client configuration
+  const client: ClientOpts = {
+    baseURL: 'https://api.deepseek.com',
+    apiKey: process.env.DEEPSEEK_API_KEY!,
+    model: 'deepseek-chat',
+    temperature: 0.2,
+    maxTokens: 8000,
+    timeoutMs: 90000,
+    ...clientOverrides,
+  }
   try {
     const collection = payload.collections[collectionSlug]
     if (!collection) {

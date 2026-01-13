@@ -1,10 +1,11 @@
 'use client'
 
-import { Button, useDocumentInfo } from '@payloadcms/ui'
+import { Button, useDocumentInfo, useLocale } from '@payloadcms/ui'
 import { useState } from 'react'
 
 export const LocalizeButton = () => {
   const { id } = useDocumentInfo()
+  const locale = useLocale()
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [forceOverwrite, setForceOverwrite] = useState(false)
@@ -32,7 +33,10 @@ export const LocalizeButton = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ forceOverwrite }),
+        body: JSON.stringify({
+          forceOverwrite,
+          sourceLocale: locale.code
+        }),
       })
 
       const result = (await response.json()) as {

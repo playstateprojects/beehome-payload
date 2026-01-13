@@ -71,7 +71,7 @@ async function exportCollections(payload: any, collections: string[], exportDir:
 
       console.log(`  ✓ Exported ${result.docs.length} items to ${filename}`)
     } catch (error) {
-      console.error(`  ✗ Failed to export ${collectionSlug}:`, error.message)
+      console.error(`  ✗ Failed to export ${collectionSlug}:`, error instanceof Error ? error.message : String(error))
     }
   }
 }
@@ -138,7 +138,7 @@ async function importCollections(
                     where: { id: { equals: id } },
                     limit: 1,
                   })
-                  .catch(() => null)
+                  .catch((): null => null)
               : null
 
             if (existing && existing.docs.length > 0) {
@@ -156,7 +156,7 @@ async function importCollections(
           }
         } catch (error) {
           errorCount++
-          console.error(`  ✗ Failed to import item:`, error.message)
+          console.error(`  ✗ Failed to import item:`, error instanceof Error ? error.message : String(error))
         }
       }
 
@@ -164,7 +164,7 @@ async function importCollections(
         `  📊 Summary: ${successCount} imported, ${skipCount} skipped, ${errorCount} errors`,
       )
     } catch (error) {
-      console.error(`  ✗ Failed to import ${collectionSlug}:`, error.message)
+      console.error(`  ✗ Failed to import ${collectionSlug}:`, error instanceof Error ? error.message : String(error))
     }
   }
 }

@@ -9,6 +9,9 @@ export const PushNotifications: CollectionConfig = {
     defaultColumns: ['title', 'message', 'publishDate', 'tags'],
     group: 'Notifications',
   },
+  versions: {
+    drafts: true,
+  },
   access: {
     read: () => true,
     create: () => true,

@@ -8,6 +8,9 @@ export const InAppNotifications: CollectionConfig = {
     defaultColumns: ['title', 'message', 'publishDate'],
     group: 'Notifications',
   },
+  versions: {
+    drafts: true,
+  },
   access: {
     read: () => true,
     create: () => true,

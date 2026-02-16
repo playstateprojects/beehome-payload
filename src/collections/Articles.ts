@@ -11,6 +11,7 @@ export const Articles: CollectionConfig = {
   slug: 'articles',
   labels: { singular: 'Article', plural: 'Articles' },
   versions: { drafts: true },
+  orderable: true,
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'publishDate', 'author', 'reviewStatus', 'updatedAt'],
@@ -34,7 +35,9 @@ export const Articles: CollectionConfig = {
         let forceOverwrite = false
         let sourceLocale: string | undefined
         try {
-          const body = (await req.json?.()) as { forceOverwrite?: boolean; sourceLocale?: string } | undefined
+          const body = (await req.json?.()) as
+            | { forceOverwrite?: boolean; sourceLocale?: string }
+            | undefined
           forceOverwrite = body?.forceOverwrite === true
           sourceLocale = body?.sourceLocale
         } catch {
@@ -42,16 +45,11 @@ export const Articles: CollectionConfig = {
         }
 
         try {
-          const result = await localizeDocument(
-            payload,
-            'articles',
-            id as string,
-            {
-              fields: ['body', 'intro', 'title', 'actionButton', 'tagline'],
-              forceOverwrite,
-              sourceLocale, // Use the locale from the request (current locale in UI)
-            },
-          )
+          const result = await localizeDocument(payload, 'articles', id as string, {
+            fields: ['body', 'intro', 'title', 'actionButton', 'tagline'],
+            forceOverwrite,
+            sourceLocale, // Use the locale from the request (current locale in UI)
+          })
 
           return Response.json(result)
         } catch (error) {

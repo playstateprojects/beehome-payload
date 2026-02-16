@@ -2,16 +2,60 @@
 import type { CollectionConfig } from 'payload'
 import { slugify } from 'payload/shared'
 import { aiLocalizeCollection } from '../hooks/aiLocalize'
+import { localizeDocument } from '../hooks/aiLocalizeService'
 
 export const ActionCards: CollectionConfig = {
   slug: 'action-cards',
   labels: { singular: 'Action Card', plural: 'Action Cards' },
+  versions: { drafts: true },
+  orderable: true,
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'link'],
     group: 'Content',
   },
   access: { read: () => true },
+
+  endpoints: [
+    {
+      path: '/:id/localize',
+      method: 'post',
+      handler: async (req) => {
+        const { id } = req.routeParams || {}
+        const payload = req.payload
+        if (!id) {
+          return Response.json({ success: false, message: 'No document ID provided' })
+        }
+
+        let forceOverwrite = false
+        let sourceLocale: string | undefined
+        try {
+          const body = (await req.json?.()) as
+            | { forceOverwrite?: boolean; sourceLocale?: string }
+            | undefined
+          forceOverwrite = body?.forceOverwrite === true
+          sourceLocale = body?.sourceLocale
+        } catch {
+          // If no body or JSON parsing fails, use default
+        }
+
+        try {
+          const result = await localizeDocument(payload, 'action-cards', id as string, {
+            fields: ['body', 'topic', 'title', 'tag'],
+            forceOverwrite,
+            sourceLocale,
+          })
+
+          return Response.json(result)
+        } catch (error) {
+          return Response.json({
+            success: false,
+            message: error instanceof Error ? error.message : 'Unknown error',
+          })
+        }
+      },
+    },
+  ],
 
   fields: [
     {
@@ -173,7 +217,38 @@ export const ActionCards: CollectionConfig = {
             },
           ],
         },
+        {
+          label: 'Meta',
+          fields: [
+            // Author — NOT localized
+            {
+              name: 'author',
+              label: 'Author',
+              type: 'text',
+              defaultValue: ({ user }) => user?.name ?? 'Nadine',
+              localized: false,
+            },
+
+            // Review Status — NOT localized
+            {
+              name: 'reviewStatus',
+              label: 'Review Status',
+              type: 'text',
+              localized: false,
+              admin: { width: '33%' },
+            },
+          ],
+        },
       ],
+    },
+    {
+      name: 'localizeButton',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/components/LocalizeButton#LocalizeButton',
+        },
+      },
     },
   ],
 

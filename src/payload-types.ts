@@ -75,6 +75,7 @@ export interface Config {
     badges: Badge;
     'space-actions': SpaceAction;
     'push-notifications': PushNotification;
+    'referral-messages': ReferralMessage;
     'space-types': SpaceType;
     'space-progress-levels': SpaceProgressLevel;
     commitments: Commitment;
@@ -99,6 +100,7 @@ export interface Config {
     badges: BadgesSelect<false> | BadgesSelect<true>;
     'space-actions': SpaceActionsSelect<false> | SpaceActionsSelect<true>;
     'push-notifications': PushNotificationsSelect<false> | PushNotificationsSelect<true>;
+    'referral-messages': ReferralMessagesSelect<false> | ReferralMessagesSelect<true>;
     'space-types': SpaceTypesSelect<false> | SpaceTypesSelect<true>;
     'space-progress-levels': SpaceProgressLevelsSelect<false> | SpaceProgressLevelsSelect<true>;
     commitments: CommitmentsSelect<false> | CommitmentsSelect<true>;
@@ -147,6 +149,7 @@ export interface UserAuthOperations {
  */
 export interface Article {
   id: number;
+  _order?: string | null;
   title: string;
   /**
    * Auto-filled from Title if left blank.
@@ -601,6 +604,7 @@ export interface InAppNotification {
  */
 export interface ActionCard {
   id: number;
+  _order?: string | null;
   title: string;
   slug: string;
   /**
@@ -655,8 +659,11 @@ export interface ActionCard {
    * Number of times a user can receive this message. When set to 1, the user will never see this action card again after the first display.
    */
   limmit?: number | null;
+  author?: string | null;
+  reviewStatus?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -692,8 +699,17 @@ export interface SpaceAction {
    * Human-readable name (localized).
    */
   label: string;
+  /**
+   * Machine identifier — must match D1.space_actions.key
+   */
+  slug: string;
   description?: string | null;
   tagline?: string | null;
+  /**
+   * Link for the action card
+   */
+  link?: string | null;
+  active?: boolean | null;
   /**
    * This message will only be shown to users with these space types.
    */
@@ -715,16 +731,30 @@ export interface SpaceAction {
    */
   maxCommitments?: number | null;
   /**
-   * Link for the action card
+   * The space action will only be displayed once this date is reached.
    */
-  link?: string | null;
-  active?: boolean | null;
+  publishDate?: string | null;
   /**
-   * Machine identifier — must match D1.space_actions.key
+   * The space action will not be displayed after this date.
    */
-  slug: string;
+  endDate?: string | null;
+  /**
+   * The number of days between repeat displays. If set to 365, the user would receive the same message again next year.
+   */
+  schedule?: number | null;
+  /**
+   * Select the months that this space action is valid for.
+   */
+  validMonths?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')[] | null;
+  /**
+   * Number of times a user can receive this message. When set to 1, the user will never see this space action again after the first display.
+   */
+  limmit?: number | null;
+  author?: string | null;
+  reviewStatus?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -768,6 +798,30 @@ export interface PushNotification {
    */
   limmit?: number | null;
   slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "referral-messages".
+ */
+export interface ReferralMessage {
+  id: number;
+  /**
+   * Internal name for this referral message.
+   */
+  name: string;
+  /**
+   * Auto-filled from Name if left blank. Internal use only.
+   */
+  slug: string;
+  /**
+   * The message that will be shared when people share content in the app.
+   */
+  copy: string;
+  image?: (number | null) | Media;
+  link?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -941,6 +995,10 @@ export interface PayloadLockedDocument {
         value: number | PushNotification;
       } | null)
     | ({
+        relationTo: 'referral-messages';
+        value: number | ReferralMessage;
+      } | null)
+    | ({
         relationTo: 'space-types';
         value: number | SpaceType;
       } | null)
@@ -1007,6 +1065,7 @@ export interface PayloadMigration {
  * via the `definition` "articles_select".
  */
 export interface ArticlesSelect<T extends boolean = true> {
+  _order?: T;
   title?: T;
   slug?: T;
   tagline?: T;
@@ -1094,6 +1153,7 @@ export interface InAppNotificationsSelect<T extends boolean = true> {
  * via the `definition` "action-cards_select".
  */
 export interface ActionCardsSelect<T extends boolean = true> {
+  _order?: T;
   title?: T;
   slug?: T;
   topic?: T;
@@ -1107,8 +1167,11 @@ export interface ActionCardsSelect<T extends boolean = true> {
   schedule?: T;
   validMonths?: T;
   limmit?: T;
+  author?: T;
+  reviewStatus?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1176,18 +1239,26 @@ export interface BadgesSelect<T extends boolean = true> {
 export interface SpaceActionsSelect<T extends boolean = true> {
   _order?: T;
   label?: T;
+  slug?: T;
   description?: T;
   tagline?: T;
+  link?: T;
+  active?: T;
   includedSpaceTypes?: T;
   includedCommitments?: T;
   excludedCommitments?: T;
   minCommitments?: T;
   maxCommitments?: T;
-  link?: T;
-  active?: T;
-  slug?: T;
+  publishDate?: T;
+  endDate?: T;
+  schedule?: T;
+  validMonths?: T;
+  limmit?: T;
+  author?: T;
+  reviewStatus?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1206,6 +1277,20 @@ export interface PushNotificationsSelect<T extends boolean = true> {
   schedule?: T;
   limmit?: T;
   slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "referral-messages_select".
+ */
+export interface ReferralMessagesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  copy?: T;
+  image?: T;
+  link?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

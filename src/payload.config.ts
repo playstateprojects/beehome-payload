@@ -23,6 +23,7 @@ import { ProductRecommendations } from './blocks/ProductRecommendations'
 import { SpaceActions } from './collections/SpaceActions'
 import BeeInfo from './collections/BeeInfo'
 import { SpaceProgressLevel } from './collections/SpaceProgressLevel'
+import { ReferralMessages } from './collections/ReferralMessages'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -54,6 +55,7 @@ export default buildConfig({
     Badge,
     SpaceActions,
     PushNotifications,
+    ReferralMessages,
     SpaceTypes,
     SpaceProgressLevel,
     Commitments,

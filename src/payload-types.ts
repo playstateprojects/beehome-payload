@@ -293,10 +293,25 @@ export interface Commitment {
   id: number;
   _order?: string | null;
   /**
+   * Hero image for this commitment
+   */
+  heroImage?: (number | null) | Media;
+  /**
    * Human-readable label (localized).
    */
   title: string;
+  /**
+   * A short text for list items.
+   */
   description?: string | null;
+  /**
+   * A brief description of the commitment in more detail.
+   */
+  fullText?: string | null;
+  /**
+   * A one-line tip, e.g. "Sonnig und trocken platzieren"
+   */
+  tip?: string | null;
   /**
    * Single emoji character (optional)
    */
@@ -305,6 +320,15 @@ export interface Commitment {
    * Rough impact score 0-100
    */
   impact_score?: number | null;
+  /**
+   * Short example words or 2-word phrases
+   */
+  examples?:
+    | {
+        example: string;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Link text
    */
@@ -1357,10 +1381,19 @@ export interface SpaceProgressLevelsSelect<T extends boolean = true> {
  */
 export interface CommitmentsSelect<T extends boolean = true> {
   _order?: T;
+  heroImage?: T;
   title?: T;
   description?: T;
+  fullText?: T;
+  tip?: T;
   emoji?: T;
   impact_score?: T;
+  examples?:
+    | T
+    | {
+        example?: T;
+        id?: T;
+      };
   linkText?: T;
   space_types?: T;
   detailTitle?: T;

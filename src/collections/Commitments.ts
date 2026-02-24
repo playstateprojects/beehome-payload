@@ -27,6 +27,15 @@ export const Commitments: CollectionConfig = {
           label: 'Content',
           fields: [
             {
+              name: 'heroImage',
+              type: 'upload',
+              relationTo: 'media',
+              localized: false,
+              admin: {
+                description: 'Hero image for this commitment',
+              },
+            },
+            {
               name: 'title',
               type: 'text',
               required: true,
@@ -39,6 +48,40 @@ export const Commitments: CollectionConfig = {
               name: 'description',
               type: 'textarea',
               localized: true,
+              admin: {
+                description: 'A short text for list items.',
+              },
+            },
+            {
+              name: 'examples',
+              type: 'array',
+              localized: true,
+              admin: {
+                description: 'Short example words or 2-word phrases',
+              },
+              fields: [
+                {
+                  name: 'example',
+                  type: 'text',
+                  required: true,
+                },
+              ],
+            },
+            {
+              name: 'fullText',
+              type: 'textarea',
+              localized: true,
+              admin: {
+                description: 'A brief description of the commitment in more detail.',
+              },
+            },
+            {
+              name: 'tip',
+              type: 'text',
+              localized: true,
+              admin: {
+                description: 'A one-line tip, e.g. "Sonnig und trocken platzieren"',
+              },
             },
             {
               name: 'emoji',
@@ -69,6 +112,7 @@ export const Commitments: CollectionConfig = {
                 description: 'Rough impact score 0-100',
               },
             },
+
             {
               name: 'linkText',
               type: 'text',

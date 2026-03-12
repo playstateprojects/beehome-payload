@@ -164,8 +164,8 @@ function translateLexicalContent(source: any, translatedText: string): any {
   }
 
   // If no segments found with markers, fall back to proportional distribution
-  if (segmentMatches.every(s => s === '')) {
-    const originalSegments = textNodes.map(n => n.text || '')
+  if (segmentMatches.every((s) => s === '')) {
+    const originalSegments = textNodes.map((n) => n.text || '')
     const totalOriginalLength = originalSegments.join('').length || 1
     const translatedWords = translatedText.replace(/<SEG\d+>|<\/SEG\d+>/g, '').split(/(\s+)/)
 
@@ -228,8 +228,8 @@ function translateSlateContent(source: any, translatedText: string): any {
   }
 
   // If no segments found with markers, fall back to proportional distribution
-  if (segmentMatches.every(s => s === '')) {
-    const originalSegments = textNodes.map(n => n.text || '')
+  if (segmentMatches.every((s) => s === '')) {
+    const originalSegments = textNodes.map((n) => n.text || '')
     const totalOriginalLength = originalSegments.join('').length || 1
     const translatedWords = translatedText.replace(/<SEG\d+>|<\/SEG\d+>/g, '').split(/(\s+)/)
 
@@ -303,6 +303,7 @@ function buildPrompt(params: {
   const sys = [
     `You fill missing localized fields for a CMS.`,
     `Return a strict JSON object with exactly these keys: ${fields.map((f) => `"${f}"`).join(', ')}.`,
+    `Translate naturally and idiomatically, as a native speaker would phrase it — not word-for-word. Adapt sentence structure and phrasing to sound natural in the target language.`,
     `Preserve meaning, tone, and domain terms.`,
     `Keep placeholders like {name}, {count}, %{var} unchanged.`,
     `CRITICAL: Some values contain <SEG0>, <SEG1>, etc. markers that separate text segments. You MUST preserve these exact markers in your translation and translate the text between them. Example: "<SEG0>hello</SEG0><SEG1>world</SEG1>" should become "<SEG0>hallo</SEG0><SEG1>Welt</SEG1>".`,
@@ -492,12 +493,10 @@ export async function localizeDocument(
           else if (looksLikeSlate(val)) {
             const plainText = stripSegmentMarkers(slateToPlain(val))
             empty = plainText.trim().length === 0
-          }
-          else if (looksLikeLexical(val)) {
+          } else if (looksLikeLexical(val)) {
             const plainText = stripSegmentMarkers(lexicalToPlain(val))
             empty = plainText.trim().length === 0
-          }
-          else if (Array.isArray(val)) empty = val.length === 0
+          } else if (Array.isArray(val)) empty = val.length === 0
           else if (typeof val === 'string') empty = val.trim().length === 0
           else empty = true
         } else {

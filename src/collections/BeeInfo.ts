@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { slugify } from 'payload/shared'
 import { aiLocalizeCollection } from '../hooks/aiLocalize'
+import { localizeDocument } from '@/hooks/aiLocalizeService'
 import { FixedToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { BlocksFeature } from '@payloadcms/richtext-lexical'
 import { ProductRecommendations } from '../blocks/ProductRecommendations'
@@ -16,6 +17,57 @@ export const BeeInfo: CollectionConfig = {
     group: 'Content',
   },
   access: { read: () => true },
+  endpoints: [
+    {
+      path: '/:id/localize',
+      method: 'post',
+      handler: async (req) => {
+        const { id } = req.routeParams || {}
+        const payload = req.payload
+        if (!id) {
+          return Response.json({ success: false, message: 'No document ID provided' })
+        }
+
+        let forceOverwrite = false
+        let sourceLocale: string | undefined
+        try {
+          const body = (await req.json?.()) as
+            | { forceOverwrite?: boolean; sourceLocale?: string }
+            | undefined
+          forceOverwrite = body?.forceOverwrite === true
+          sourceLocale = body?.sourceLocale
+        } catch {
+          // If no body or JSON parsing fails, use defaults
+        }
+
+        try {
+          const result = await localizeDocument(payload, 'bee-info', id as string, {
+            fields: [
+              'commonName',
+              'tagline',
+              'intro',
+              'size',
+              'flightTime',
+              'distribution',
+              'habitat',
+              'specialTrait',
+              'sections.sectionTitle',
+              'sections.sectionBody',
+            ],
+            forceOverwrite,
+            sourceLocale,
+          })
+
+          return Response.json(result)
+        } catch (error) {
+          return Response.json({
+            success: false,
+            message: error instanceof Error ? error.message : 'Unknown error',
+          })
+        }
+      },
+    },
+  ],
 
   fields: [
     // ========================================
@@ -293,6 +345,15 @@ export const BeeInfo: CollectionConfig = {
           ],
         },
       ],
+    },
+    {
+      name: 'localizeButton',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/components/LocalizeButton#LocalizeButton',
+        },
+      },
     },
   ],
 

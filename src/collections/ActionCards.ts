@@ -237,6 +237,38 @@ export const ActionCards: CollectionConfig = {
               localized: false,
               admin: { width: '33%' },
             },
+
+            // Available Countries — NOT localized
+            {
+              name: 'availableInCountries',
+              label: 'Available In Countries',
+              type: 'select',
+              hasMany: true,
+              localized: false,
+              admin: {
+                description:
+                  'Restrict this card to users in specific countries. Leave empty to show in all countries.',
+              },
+              options: [
+                { label: 'Austria (AT)', value: 'AT' },
+                { label: 'Belgium (BE)', value: 'BE' },
+                { label: 'Switzerland (CH)', value: 'CH' },
+                { label: 'Germany (DE)', value: 'DE' },
+                { label: 'Denmark (DK)', value: 'DK' },
+                { label: 'Spain (ES)', value: 'ES' },
+                { label: 'Finland (FI)', value: 'FI' },
+                { label: 'France (FR)', value: 'FR' },
+                { label: 'United Kingdom (GB)', value: 'GB' },
+                { label: 'Italy (IT)', value: 'IT' },
+                { label: 'Luxembourg (LU)', value: 'LU' },
+                { label: 'Netherlands (NL)', value: 'NL' },
+                { label: 'Norway (NO)', value: 'NO' },
+                { label: 'Poland (PL)', value: 'PL' },
+                { label: 'Portugal (PT)', value: 'PT' },
+                { label: 'Sweden (SE)', value: 'SE' },
+                { label: 'United States (US)', value: 'US' },
+              ],
+            },
           ],
         },
       ],

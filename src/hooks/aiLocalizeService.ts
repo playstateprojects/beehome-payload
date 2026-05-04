@@ -303,10 +303,34 @@ function buildPrompt(params: {
   const sys = [
     `You fill missing localized fields for a CMS.`,
     `Return a strict JSON object with exactly these keys: ${fields.map((f) => `"${f}"`).join(', ')}.`,
-    `Translate naturally and idiomatically, as a native speaker would phrase it — not word-for-word. Adapt sentence structure and phrasing to sound natural in the target language.`,
-    `Preserve meaning, tone, and domain terms.`,
+    `Translate into natural, fluent ${targetLocale} as a native speaker would write it — not as a translator would render it. 
+  Prioritize how a native speaker would naturally express the idea over literal accuracy to the source structure.
+  Rewrite sentence structure, word order, and phrasing from scratch if needed. 
+  Do not carry over grammatical patterns, idioms, or stylistic conventions from the source language.
+  Avoid translationese: stiff phrasing, unnatural word order, or constructions that reveal the source language.`,
+    `Match the register and tone of the original (e.g. friendly, educational, conversational) but express it the way a native ${targetLocale} writer in that genre would.`,
+    `Preserve meaning, domain terms, and key concepts — but feel free to restructure sentences, split or combine them, or reorder information if it reads more naturally.`,
     `Keep placeholders like {name}, {count}, %{var} unchanged.`,
     `CRITICAL: Some values contain <SEG0>, <SEG1>, etc. markers that separate text segments. You MUST preserve these exact markers in your translation and translate the text between them. Example: "<SEG0>hello</SEG0><SEG1>world</SEG1>" should become "<SEG0>hallo</SEG0><SEG1>Welt</SEG1>".`,
+    `TERMINOLOGY: Always use these exact translations. Do not paraphrase or substitute them.
+  - Summ-Level → EN: "Buzz Level" / FR: "Niveau de Bzz"
+  - Wildbienen-Oase → EN: "Wild Bee Oasis" / FR: "Oasis pour abeilles"
+  - Bienen-Oase → EN: "Bee Oasis" / FR: "Oasis pour abeilles"
+  - Mini Wildbienen-Oase → EN: "Mini Wild Bee Oasis" / FR: "Mini oasis pour abeilles"
+  - Premium Wildbienen-Oase → EN: "Premium Wild Bee Oasis" / FR: "Oasis Premium pour abeilles"
+  - Premium Oase → EN: "Premium Oasis" / FR: "Oasis Premium"
+  - Pro Wildbienen-Oase → EN: "Pro Wild Bee Oasis" / FR: "Oasis expert pour abeilles"
+  - Heldentaten → EN: "Hero Actions" / FR: "Actions héroïques"
+  - Trittstein → EN: "Stepping Stone" / FR: "Tremplin"
+  - BeeHome → EN: "BeeHome" / FR: "BeeHome" (feminine noun — la BeeHome, une BeeHome)
+  - Mauerbiene → EN: "mason bee" / FR: "abeille maçonne" (feminine — l'abeille maçonne)
+  - Wildbienen-Pflege → EN: "wild bee care" / FR: "soins aux abeilles sauvages"
+  - summend / summende → EN: "buzzing" / FR: "bourdonnant"`,
+    `LANGUAGE-SPECIFIC RULES:
+  - Address the user informally: "Du" in German, "Tu" in French, "you" in English.
+  - FR only: When referring to bees, always use "abeille" — never "osmie".
+  - FR only: For button labels and calls to action, render German imperative verbs as French infinitives (e.g. "Entdecken" → "Découvrir", not "Découvrez").
+  - FR only: Use guillemets « » for quotation marks, not " ".`,
     `If a source key is empty, return an empty string for that key.`,
     `No markdown. No extra keys. No explanations.`,
   ].join(' ')

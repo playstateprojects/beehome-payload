@@ -54,6 +54,11 @@ function detectLocalizedFieldsWithMeta(collection: any): { fields: string[]; met
 
       // dive into children
       if (field?.fields) visit(field.fields, hasName ? path : prefix)
+      if (field?.tabs) {
+        for (const tab of field.tabs || []) {
+          visit(tab.fields || [], prefix)
+        }
+      }
       if (field?.blocks) {
         for (const b of field.blocks || []) {
           visit(b.fields || [], hasName ? `${path}.${b.slug}` : prefix)
@@ -284,6 +289,7 @@ export function aiLocalizeCollection(
   const skipIfSlateTarget = config.skipIfSlateTarget ?? true
 
   return async ({ req, doc, collection, context }: any) => {
+    try {
     if (req.headers?.[HEADER_GUARD] === '1') return doc
 
     const payload = req.payload as Payload
@@ -454,5 +460,9 @@ export function aiLocalizeCollection(
     }
 
     return doc
+    } catch (err) {
+      console.error('[aiLocalize] afterChange hook failed', err)
+      return doc
+    }
   }
 }

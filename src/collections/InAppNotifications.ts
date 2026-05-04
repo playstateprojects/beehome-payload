@@ -1,4 +1,5 @@
 import { aiLocalizeCollection } from '@/hooks/aiLocalize'
+import { localizeDocument } from '@/hooks/aiLocalizeService'
 import type { CollectionConfig } from 'payload'
 
 export const InAppNotifications: CollectionConfig = {
@@ -17,6 +18,46 @@ export const InAppNotifications: CollectionConfig = {
     update: () => true,
     delete: () => true,
   },
+  endpoints: [
+    {
+      path: '/:id/localize',
+      method: 'post',
+      handler: async (req) => {
+        const { id } = req.routeParams || {}
+        const payload = req.payload
+        if (!id) {
+          return Response.json({ success: false, message: 'No document ID provided' })
+        }
+
+        let forceOverwrite = false
+        let sourceLocale: string | undefined
+        try {
+          const body = (await req.json?.()) as
+            | { forceOverwrite?: boolean; sourceLocale?: string }
+            | undefined
+          forceOverwrite = body?.forceOverwrite === true
+          sourceLocale = body?.sourceLocale
+        } catch {
+          // If no body or JSON parsing fails, use defaults
+        }
+
+        try {
+          const result = await localizeDocument(payload, 'in-app-notifications', id as string, {
+            fields: ['title', 'message', 'actionButtonText', 'actionButtonLink'],
+            forceOverwrite,
+            sourceLocale,
+          })
+
+          return Response.json(result)
+        } catch (error) {
+          return Response.json({
+            success: false,
+            message: error instanceof Error ? error.message : 'Unknown error',
+          })
+        }
+      },
+    },
+  ],
   fields: [
     {
       type: 'tabs',
@@ -207,6 +248,15 @@ export const InAppNotifications: CollectionConfig = {
       localized: false,
       admin: {
         hidden: true,
+      },
+    },
+    {
+      name: 'localizeButton',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/components/LocalizeButton#LocalizeButton',
+        },
       },
     },
   ],

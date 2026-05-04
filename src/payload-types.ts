@@ -305,6 +305,15 @@ export interface Commitment {
    */
   description?: string | null;
   /**
+   * Short example words or 2-word phrases
+   */
+  examples?:
+    | {
+        example: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * A brief description of the commitment in more detail.
    */
   fullText?: string | null;
@@ -321,18 +330,23 @@ export interface Commitment {
    */
   impact_score?: number | null;
   /**
-   * Short example words or 2-word phrases
-   */
-  examples?:
-    | {
-        example: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
    * Link text
    */
   linkText?: string | null;
+  /**
+   * Per-country call-to-action buttons
+   */
+  buttons?:
+    | {
+        text: string;
+        link: string;
+        /**
+         * ISO 3166-1 alpha-2 country code (e.g. DE, AT, CH)
+         */
+        country: string;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Space types this commitment applies to
    */
@@ -685,6 +699,30 @@ export interface ActionCard {
   limmit?: number | null;
   author?: string | null;
   reviewStatus?: string | null;
+  /**
+   * Restrict this card to users in specific countries. Leave empty to show in all countries.
+   */
+  availableInCountries?:
+    | (
+        | 'AT'
+        | 'BE'
+        | 'CH'
+        | 'DE'
+        | 'DK'
+        | 'ES'
+        | 'FI'
+        | 'FR'
+        | 'GB'
+        | 'IT'
+        | 'LU'
+        | 'NL'
+        | 'NO'
+        | 'PL'
+        | 'PT'
+        | 'SE'
+        | 'US'
+      )[]
+    | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -1193,6 +1231,7 @@ export interface ActionCardsSelect<T extends boolean = true> {
   limmit?: T;
   author?: T;
   reviewStatus?: T;
+  availableInCountries?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1384,17 +1423,25 @@ export interface CommitmentsSelect<T extends boolean = true> {
   heroImage?: T;
   title?: T;
   description?: T;
-  fullText?: T;
-  tip?: T;
-  emoji?: T;
-  impact_score?: T;
   examples?:
     | T
     | {
         example?: T;
         id?: T;
       };
+  fullText?: T;
+  tip?: T;
+  emoji?: T;
+  impact_score?: T;
   linkText?: T;
+  buttons?:
+    | T
+    | {
+        text?: T;
+        link?: T;
+        country?: T;
+        id?: T;
+      };
   space_types?: T;
   detailTitle?: T;
   detailSubtitle?: T;

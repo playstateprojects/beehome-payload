@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { aiLocalizeCollection } from '../hooks/aiLocalize'
+import { localizeDocument } from '../hooks/aiLocalizeService'
 import { slugify } from 'payload/shared'
 
 export const Commitments: CollectionConfig = {
@@ -18,6 +19,47 @@ export const Commitments: CollectionConfig = {
   access: {
     read: () => true, // public read
   },
+
+  endpoints: [
+    {
+      path: '/:id/localize',
+      method: 'post',
+      handler: async (req) => {
+        const { id } = req.routeParams || {}
+        const payload = req.payload
+        if (!id) {
+          return Response.json({ success: false, message: 'No document ID provided' })
+        }
+
+        let forceOverwrite = false
+        let sourceLocale: string | undefined
+        try {
+          const body = (await req.json?.()) as
+            | { forceOverwrite?: boolean; sourceLocale?: string }
+            | undefined
+          forceOverwrite = body?.forceOverwrite === true
+          sourceLocale = body?.sourceLocale
+        } catch {
+          // If no body or JSON parsing fails, use defaults
+        }
+
+        try {
+          const result = await localizeDocument(payload, 'commitments', id as string, {
+            fields: ['title', 'description', 'examples', 'fullText', 'tip', 'linkText', 'detailTitle', 'detailSubtitle', 'detailListTitle', 'content'],
+            forceOverwrite,
+            sourceLocale,
+          })
+
+          return Response.json(result)
+        } catch (error) {
+          return Response.json({
+            success: false,
+            message: error instanceof Error ? error.message : 'Unknown error',
+          })
+        }
+      },
+    },
+  ],
 
   fields: [
     {
@@ -120,6 +162,46 @@ export const Commitments: CollectionConfig = {
               admin: {
                 description: 'Link text',
               },
+            },
+            {
+              name: 'buttons',
+              type: 'array',
+              admin: {
+                description: 'Per-country call-to-action buttons',
+              },
+              fields: [
+                {
+                  name: 'text',
+                  type: 'text',
+                  required: true,
+                  defaultValue: 'bestellen',
+                },
+                {
+                  name: 'link',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'country',
+                  type: 'text',
+                  required: true,
+                  admin: {
+                    description: 'ISO 3166-1 alpha-2 country code (e.g. DE, AT, CH)',
+                  },
+                  validate: (value: string) => {
+                    if (!value) return 'Country code is required'
+                    if (!/^[A-Za-z]{2}$/.test(value)) {
+                      return 'Must be a 2-letter ISO country code'
+                    }
+                    return true
+                  },
+                  hooks: {
+                    beforeValidate: [
+                      ({ value }) => (typeof value === 'string' ? value.toUpperCase() : value),
+                    ],
+                  },
+                },
+              ],
             },
             {
               name: 'space_types',
@@ -242,6 +324,15 @@ export const Commitments: CollectionConfig = {
           ],
         },
       ],
+    },
+    {
+      name: 'localizeButton',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/components/LocalizeButton#LocalizeButton',
+        },
+      },
     },
   ],
 

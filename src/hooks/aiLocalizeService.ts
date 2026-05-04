@@ -22,6 +22,9 @@ type LocalizeConfig = {
 type FieldMeta = { type: 'text' | 'textarea' | 'richText' }
 type FieldMap = Map<string, FieldMeta>
 
+/** A single translatable text run extracted from a rich text structure */
+type Segment = { id: number; text: string; blockType?: string }
+
 const HEADER_GUARD = 'x-ai-localize'
 
 function detectLocalizedFieldsWithMeta(collection: any): { fields: string[]; meta: FieldMap } {
@@ -45,7 +48,6 @@ function detectLocalizedFieldsWithMeta(collection: any): { fields: string[]; met
 
       if (field?.fields) visit(field.fields, hasName ? path : prefix)
       if (field?.tabs) {
-        // Handle tabs structure - visit each tab's fields
         for (const tab of field.tabs || []) {
           visit(tab.fields || [], prefix)
         }
@@ -86,177 +88,104 @@ function looksLikeLexical(val: any): boolean {
   return !!val && typeof val === 'object' && !!val.root && val.root.type === 'root'
 }
 
-function slateToPlain(val: any): string {
-  if (!Array.isArray(val)) return ''
-  const segments: string[] = []
+// ─── Segment extraction ──────────────────────────────────────────────────────
 
-  const collect = (node: any): void => {
-    if (!node || typeof node !== 'object') return
-    if (typeof node.text === 'string') {
-      segments.push(node.text)
-      return
-    }
-    if (Array.isArray(node.children)) {
-      node.children.forEach(collect)
-    }
-  }
+/**
+ * Walks a Lexical rich text tree and returns every non-empty text run as a
+ * Segment. Each Segment carries a stable `id` (its sequential position among
+ * ALL text nodes, including empty ones) so it can be mapped back without
+ * ambiguity even when the LLM skips or reorders entries.
+ */
+function lexicalToSegments(val: any): Segment[] {
+  if (!val?.root?.children) return []
+  const segments: Segment[] = []
+  let id = 0
 
-  val.forEach(collect)
-
-  // Use a unique delimiter to preserve text node boundaries
-  return segments.map((seg, idx) => `<SEG${idx}>${seg}</SEG${idx}>`).join('')
-}
-
-function lexicalToPlain(val: any): string {
-  if (!val?.root?.children) return ''
-  const segments: string[] = []
-
-  const walk = (nodes: any[]) => {
+  const walk = (nodes: any[], blockType?: string) => {
     for (const n of nodes) {
-      if (n.type === 'text' && typeof n.text === 'string') {
-        segments.push(n.text)
+      if (n.type === 'text') {
+        if (typeof n.text === 'string' && n.text) {
+          segments.push({ id, text: n.text, ...(blockType ? { blockType } : {}) })
+        }
+        id++
       } else if (Array.isArray(n.children)) {
-        walk(n.children)
-      } else if (n.type === 'linebreak') {
-        segments.push('\n')
+        walk(n.children, n.type && n.type !== 'root' ? n.type : blockType)
       }
     }
   }
 
   walk(val.root.children)
-
-  // Use a unique delimiter to preserve text node boundaries
-  return segments.map((seg, idx) => `<SEG${idx}>${seg}</SEG${idx}>`).join('')
+  return segments
 }
 
-function translateLexicalContent(source: any, translatedText: string): any {
+/** Applies translated segments back onto a deep-cloned Lexical structure. */
+function applySegmentsToLexical(source: any, segments: Segment[]): any {
   if (!source?.root) return source
-
   const result = JSON.parse(JSON.stringify(source))
+  const segMap = new Map(segments.map((s) => [s.id, s.text]))
+  let id = 0
 
-  // Collect all text nodes in order
-  const textNodes: any[] = []
-  const findTextNodes = (nodes: any[]) => {
-    for (const node of nodes || []) {
-      if (node.type === 'text') {
-        textNodes.push(node)
+  const walk = (nodes: any[]) => {
+    for (const n of nodes) {
+      if (n.type === 'text') {
+        if (segMap.has(id)) n.text = segMap.get(id)!
+        id++
+      } else if (Array.isArray(n.children)) {
+        walk(n.children)
       }
-      if (node.children) {
-        findTextNodes(node.children)
-      }
-    }
-  }
-  findTextNodes(result.root.children)
-
-  if (textNodes.length === 0) return result
-
-  // Extract translated segments from the <SEG> markers
-  const segmentMatches: string[] = []
-  for (let i = 0; i < textNodes.length; i++) {
-    const regex = new RegExp(`<SEG${i}>([\\s\\S]*?)</SEG${i}>`)
-    const match = translatedText.match(regex)
-    if (match) {
-      segmentMatches.push(match[1])
-    } else {
-      // Fallback: if markers not found, keep original or empty
-      segmentMatches.push('')
     }
   }
 
-  // If no segments found with markers, fall back to proportional distribution
-  if (segmentMatches.every((s) => s === '')) {
-    const originalSegments = textNodes.map((n) => n.text || '')
-    const totalOriginalLength = originalSegments.join('').length || 1
-    const translatedWords = translatedText.replace(/<SEG\d+>|<\/SEG\d+>/g, '').split(/(\s+)/)
-
-    let wordIndex = 0
-    for (let i = 0; i < textNodes.length; i++) {
-      const originalLength = originalSegments[i].length
-      const proportion = originalLength / totalOriginalLength
-      const wordsToTake = Math.max(1, Math.round(translatedWords.length * proportion))
-
-      const assignedWords = translatedWords.slice(wordIndex, wordIndex + wordsToTake)
-      textNodes[i].text = assignedWords.join('')
-      wordIndex += wordsToTake
-    }
-
-    if (wordIndex < translatedWords.length) {
-      const remaining = translatedWords.slice(wordIndex).join('')
-      textNodes[textNodes.length - 1].text += remaining
-    }
-  } else {
-    // Apply the matched segments to text nodes
-    for (let i = 0; i < textNodes.length; i++) {
-      textNodes[i].text = segmentMatches[i] || ''
-    }
-  }
-
+  walk(result.root.children)
   return result
 }
 
-function translateSlateContent(source: any, translatedText: string): any {
+/** Walks a Slate rich text tree and returns every non-empty text run. */
+function slateToSegments(val: any): Segment[] {
+  if (!Array.isArray(val)) return []
+  const segments: Segment[] = []
+  let id = 0
+
+  const walk = (nodes: any[], blockType?: string) => {
+    for (const n of nodes) {
+      if (n.text !== undefined) {
+        if (typeof n.text === 'string' && n.text) {
+          segments.push({ id, text: n.text, ...(blockType ? { blockType } : {}) })
+        }
+        id++
+      } else if (Array.isArray(n.children)) {
+        walk(n.children, n.type || blockType)
+      }
+    }
+  }
+
+  walk(val)
+  return segments
+}
+
+/** Applies translated segments back onto a deep-cloned Slate structure. */
+function applySegmentsToSlate(source: any, segments: Segment[]): any {
   if (!Array.isArray(source)) return source
-
   const result = JSON.parse(JSON.stringify(source))
+  const segMap = new Map(segments.map((s) => [s.id, s.text]))
+  let id = 0
 
-  // Collect all text nodes in order
-  const textNodes: any[] = []
-  const findTextNodes = (nodes: any[]) => {
-    for (const node of nodes || []) {
-      if (node.text !== undefined) {
-        textNodes.push(node)
+  const walk = (nodes: any[]) => {
+    for (const n of nodes) {
+      if (n.text !== undefined) {
+        if (segMap.has(id)) n.text = segMap.get(id)!
+        id++
+      } else if (Array.isArray(n.children)) {
+        walk(n.children)
       }
-      if (node.children) {
-        findTextNodes(node.children)
-      }
-    }
-  }
-  findTextNodes(result)
-
-  if (textNodes.length === 0) return result
-
-  // Extract translated segments from the <SEG> markers
-  const segmentMatches: string[] = []
-  for (let i = 0; i < textNodes.length; i++) {
-    const regex = new RegExp(`<SEG${i}>([\\s\\S]*?)</SEG${i}>`)
-    const match = translatedText.match(regex)
-    if (match) {
-      segmentMatches.push(match[1])
-    } else {
-      segmentMatches.push('')
     }
   }
 
-  // If no segments found with markers, fall back to proportional distribution
-  if (segmentMatches.every((s) => s === '')) {
-    const originalSegments = textNodes.map((n) => n.text || '')
-    const totalOriginalLength = originalSegments.join('').length || 1
-    const translatedWords = translatedText.replace(/<SEG\d+>|<\/SEG\d+>/g, '').split(/(\s+)/)
-
-    let wordIndex = 0
-    for (let i = 0; i < textNodes.length; i++) {
-      const originalLength = originalSegments[i].length
-      const proportion = originalLength / totalOriginalLength
-      const wordsToTake = Math.max(1, Math.round(translatedWords.length * proportion))
-
-      const assignedWords = translatedWords.slice(wordIndex, wordIndex + wordsToTake)
-      textNodes[i].text = assignedWords.join('')
-      wordIndex += wordsToTake
-    }
-
-    if (wordIndex < translatedWords.length) {
-      const remaining = translatedWords.slice(wordIndex).join('')
-      textNodes[textNodes.length - 1].text += remaining
-    }
-  } else {
-    // Apply the matched segments to text nodes
-    for (let i = 0; i < textNodes.length; i++) {
-      textNodes[i].text = segmentMatches[i] || ''
-    }
-  }
-
+  walk(result)
   return result
 }
+
+// ─── LLM call ────────────────────────────────────────────────────────────────
 
 async function callJSONModel<T = any>(
   opts: ClientOpts,
@@ -264,7 +193,7 @@ async function callJSONModel<T = any>(
   userPrompt: string,
 ): Promise<T> {
   const controller = new AbortController()
-  const id = setTimeout(() => controller.abort(), opts.timeoutMs ?? 20000)
+  const id = setTimeout(() => controller.abort(), opts.timeoutMs ?? 180000)
   try {
     const res = await fetch(`${opts.baseURL || 'https://api.openai.com'}/v1/chat/completions`, {
       method: 'POST',
@@ -277,7 +206,7 @@ async function callJSONModel<T = any>(
         ],
         temperature: opts.temperature ?? 0.2,
         response_format: { type: 'json_object' },
-        max_tokens: opts.maxTokens ?? 512,
+        max_tokens: opts.maxTokens ?? 65536,
       }),
       signal: controller.signal,
     })
@@ -291,27 +220,39 @@ async function callJSONModel<T = any>(
   }
 }
 
+// ─── Prompt builder ───────────────────────────────────────────────────────────
+
+/**
+ * sourceValues may contain either plain strings (text/textarea) or Segment
+ * arrays (richText). The prompt instructs the LLM to return arrays for richText
+ * fields using the same id values so they can be mapped back precisely.
+ */
 function buildPrompt(params: {
   collection: string
   sourceLocale: string
   targetLocale: string
   fields: string[]
-  sourceValues: Record<string, string>
+  sourceValues: Record<string, string | Segment[]>
   extraContext?: Record<string, any>
 }) {
   const { collection, sourceLocale, targetLocale, fields, sourceValues, extraContext } = params
   const sys = [
     `You fill missing localized fields for a CMS.`,
     `Return a strict JSON object with exactly these keys: ${fields.map((f) => `"${f}"`).join(', ')}.`,
-    `Translate into natural, fluent ${targetLocale} as a native speaker would write it — not as a translator would render it. 
+    `Translate into natural, fluent ${targetLocale} as a native speaker would write it — not as a translator would render it.
   Prioritize how a native speaker would naturally express the idea over literal accuracy to the source structure.
-  Rewrite sentence structure, word order, and phrasing from scratch if needed. 
+  Rewrite sentence structure, word order, and phrasing from scratch if needed.
   Do not carry over grammatical patterns, idioms, or stylistic conventions from the source language.
   Avoid translationese: stiff phrasing, unnatural word order, or constructions that reveal the source language.`,
     `Match the register and tone of the original (e.g. friendly, educational, conversational) but express it the way a native ${targetLocale} writer in that genre would.`,
     `Preserve meaning, domain terms, and key concepts — but feel free to restructure sentences, split or combine them, or reorder information if it reads more naturally.`,
     `Keep placeholders like {name}, {count}, %{var} unchanged.`,
-    `CRITICAL: Some values contain <SEG0>, <SEG1>, etc. markers that separate text segments. You MUST preserve these exact markers in your translation and translate the text between them. Example: "<SEG0>hello</SEG0><SEG1>world</SEG1>" should become "<SEG0>hallo</SEG0><SEG1>Welt</SEG1>".`,
+    `RICH TEXT FIELDS: Some field values are JSON arrays of segment objects: [{id, text, blockType?}, ...].
+  For these fields you MUST return a JSON array (not a string) of the form [{id: <same number>, text: "<translation>"}...].
+  - Preserve EVERY id value exactly — never add, remove, or renumber ids.
+  - Translate ONLY the "text" values; do not include "blockType" in the output.
+  - Each segment is an independent text run inside a paragraph or heading — keep translations appropriately scoped.
+  - Do not merge or split segments; one input segment = one output segment.`,
     `TERMINOLOGY: Always use these exact translations. Do not paraphrase or substitute them.
   - Summ-Level → EN: "Buzz Level" / FR: "Niveau de Bzz"
   - Wildbienen-Oase → EN: "Wild Bee Oasis" / FR: "Oasis pour abeilles"
@@ -331,9 +272,10 @@ function buildPrompt(params: {
   - FR only: When referring to bees, always use "abeille" — never "osmie".
   - FR only: For button labels and calls to action, render German imperative verbs as French infinitives (e.g. "Entdecken" → "Découvrir", not "Découvrez").
   - FR only: Use guillemets « » for quotation marks, not " ".`,
-    `If a source key is empty, return an empty string for that key.`,
+    `If a source string key is empty, return an empty string for that key.`,
     `No markdown. No extra keys. No explanations.`,
   ].join(' ')
+
   const userObj: any = {
     task: 'localize',
     collection,
@@ -345,9 +287,7 @@ function buildPrompt(params: {
   return { sys, user: JSON.stringify(userObj, null, 2) }
 }
 
-function stripSegmentMarkers(text: string): string {
-  return text.replace(/<SEG\d+>|<\/SEG\d+>/g, '')
-}
+// ─── Content scoring ──────────────────────────────────────────────────────────
 
 function contentScore(
   docAllLocales: any,
@@ -363,27 +303,20 @@ function contentScore(
       score += 1
       continue
     }
-    if (looksLikeSlate(val)) {
-      const plainText = stripSegmentMarkers(slateToPlain(val))
-      if (plainText.trim().length > 0) {
-        score += 1
-        continue
-      }
+    if (looksLikeSlate(val) && slateToSegments(val).length > 0) {
+      score += 1
+      continue
     }
-    if (looksLikeLexical(val)) {
-      const plainText = stripSegmentMarkers(lexicalToPlain(val))
-      if (plainText.trim().length > 0) {
-        score += 1
-        continue
-      }
+    if (looksLikeLexical(val) && lexicalToSegments(val).length > 0) {
+      score += 1
+      continue
     }
   }
   return score
 }
 
-/**
- * Main localization function that can be called from anywhere
- */
+// ─── Main export ──────────────────────────────────────────────────────────────
+
 export async function localizeDocument(
   payload: Payload,
   collectionSlug: CollectionSlug,
@@ -391,14 +324,13 @@ export async function localizeDocument(
   config: LocalizeConfig = {},
   clientOverrides?: Partial<ClientOpts>,
 ): Promise<{ success: boolean; message: string; localesUpdated?: string[] }> {
-  // Default client configuration
   const client: ClientOpts = {
     baseURL: 'https://api.deepseek.com',
     apiKey: process.env.DEEPSEEK_API_KEY!,
-    model: 'deepseek-chat',
+    model: 'deepseek-v4-pro',
     temperature: 0.2,
-    maxTokens: 8000,
-    timeoutMs: 90000,
+    maxTokens: 65536,
+    timeoutMs: 180000,
     ...clientOverrides,
   }
   try {
@@ -429,7 +361,6 @@ export async function localizeDocument(
     )
     const requestedTargets = config.targetLocales?.length ? config.targetLocales : allLocales
 
-    // Fetch document with all locales
     const docAllLocales = await payload.findByID({
       collection: collectionSlug,
       id: docId,
@@ -437,7 +368,6 @@ export async function localizeDocument(
       locale: 'all',
     })
 
-    // Auto-pick source locale with most content
     const scores = Object.fromEntries(
       allLocales.map((l) => [l, contentScore(docAllLocales, fieldsToLocalize, l, fieldMeta)]),
     )
@@ -452,39 +382,39 @@ export async function localizeDocument(
         ? bestLocale!
         : defaultLocale
 
-    // Flatten sources to strings for the LLM
-    const sourceValues: Record<string, string> = {}
-    const sourceRichTextStructures: Record<string, any> = {}
+    // Flatten sources: plain strings for text/textarea, Segment[] for richText
+    const sourceValues: Record<string, string | Segment[]> = {}
+    // Maps richText field path → { type, structure } for reconstruction
+    const sourceRichText: Record<string, { type: 'lexical' | 'slate'; structure: any }> = {}
     const fieldsWithContent: string[] = []
 
     for (const f of fieldsToLocalize) {
       const v = getByPath(docAllLocales, f)
       const val = typeof v === 'object' && v !== null ? v[actualSourceLocale] : v
       const kind = fieldMeta.get(f)?.type
-      let textValue = ''
 
       if (kind === 'richText') {
-        if (looksLikeSlate(val)) {
-          textValue = slateToPlain(val)
-          if (textValue.trim()) {
-            sourceRichTextStructures[f] = { type: 'slate', structure: val }
+        if (looksLikeLexical(val)) {
+          const segs = lexicalToSegments(val)
+          if (segs.length > 0) {
+            sourceValues[f] = segs
+            sourceRichText[f] = { type: 'lexical', structure: val }
+            fieldsWithContent.push(f)
           }
-        } else if (looksLikeLexical(val)) {
-          textValue = lexicalToPlain(val)
-          if (textValue.trim()) {
-            sourceRichTextStructures[f] = { type: 'lexical', structure: val }
+        } else if (looksLikeSlate(val)) {
+          const segs = slateToSegments(val)
+          if (segs.length > 0) {
+            sourceValues[f] = segs
+            sourceRichText[f] = { type: 'slate', structure: val }
+            fieldsWithContent.push(f)
           }
-        } else {
-          textValue = typeof val === 'string' ? val : ''
         }
       } else {
-        textValue = typeof val === 'string' ? val : ''
-      }
-
-      // Only include fields that have actual content
-      if (textValue.trim().length > 0) {
-        sourceValues[f] = textValue
-        fieldsWithContent.push(f)
+        const textValue = typeof val === 'string' ? val : ''
+        if (textValue.trim().length > 0) {
+          sourceValues[f] = textValue
+          fieldsWithContent.push(f)
+        }
       }
     }
 
@@ -495,14 +425,11 @@ export async function localizeDocument(
       }
     }
 
-    // Compute missing fields per target locale (only for fields that have source content)
     const targets = requestedTargets.filter((l) => l !== actualSourceLocale)
     const toFill: Array<{ locale: string; fieldsMissing: string[] }> = []
     for (const locale of targets) {
       const fieldsMissing: string[] = []
-      // Only check fields that have content in the source
       for (const f of fieldsWithContent) {
-        // If forceOverwrite is true, always include the field
         if (config.forceOverwrite) {
           fieldsMissing.push(f)
           continue
@@ -514,13 +441,9 @@ export async function localizeDocument(
         let empty = false
         if (kind === 'richText') {
           if (val == null) empty = true
-          else if (looksLikeSlate(val)) {
-            const plainText = stripSegmentMarkers(slateToPlain(val))
-            empty = plainText.trim().length === 0
-          } else if (looksLikeLexical(val)) {
-            const plainText = stripSegmentMarkers(lexicalToPlain(val))
-            empty = plainText.trim().length === 0
-          } else if (Array.isArray(val)) empty = val.length === 0
+          else if (looksLikeLexical(val)) empty = lexicalToSegments(val).length === 0
+          else if (looksLikeSlate(val)) empty = slateToSegments(val).length === 0
+          else if (Array.isArray(val)) empty = val.length === 0
           else if (typeof val === 'string') empty = val.trim().length === 0
           else empty = true
         } else {
@@ -542,39 +465,44 @@ export async function localizeDocument(
     const localesUpdated: string[] = []
 
     for (const { locale, fieldsMissing } of toFill) {
+      // Only send the source values for fields that need filling
+      const filteredSource = Object.fromEntries(
+        fieldsMissing.map((f) => [f, sourceValues[f]]),
+      ) as Record<string, string | Segment[]>
+
       const { sys, user } = buildPrompt({
         collection: collectionSlug,
         sourceLocale: actualSourceLocale,
         targetLocale: locale,
         fields: fieldsMissing,
-        sourceValues,
+        sourceValues: filteredSource,
         extraContext,
       })
 
       try {
-        const result = await callJSONModel<Record<string, string>>(client, sys, user)
+        const result = await callJSONModel<Record<string, string | Segment[]>>(client, sys, user)
 
         const patch: Record<string, any> = {}
 
         for (const f of fieldsMissing) {
-          const proposed = (result?.[f] ?? '').toString()
+          const proposed = result?.[f]
           const kind = fieldMeta.get(f)?.type
 
           if (kind === 'richText') {
-            const richTextMeta = sourceRichTextStructures[f]
-            if (richTextMeta) {
-              if (richTextMeta.type === 'lexical') {
-                setByPath(patch, f, translateLexicalContent(richTextMeta.structure, proposed))
-              } else if (richTextMeta.type === 'slate') {
-                setByPath(patch, f, translateSlateContent(richTextMeta.structure, proposed))
+            const richMeta = sourceRichText[f]
+            if (richMeta && Array.isArray(proposed)) {
+              if (richMeta.type === 'lexical') {
+                setByPath(patch, f, applySegmentsToLexical(richMeta.structure, proposed as Segment[]))
               } else {
-                setByPath(patch, f, proposed)
+                setByPath(patch, f, applySegmentsToSlate(richMeta.structure, proposed as Segment[]))
               }
-            } else {
+            } else if (richMeta && typeof proposed === 'string' && proposed) {
+              // LLM returned a string for a richText field — surface as-is
               setByPath(patch, f, proposed)
             }
           } else {
-            setByPath(patch, f, proposed)
+            const text = (proposed ?? '').toString()
+            if (text) setByPath(patch, f, text)
           }
         }
 

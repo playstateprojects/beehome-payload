@@ -45,7 +45,18 @@ export const Commitments: CollectionConfig = {
 
         try {
           const result = await localizeDocument(payload, 'commitments', id as string, {
-            fields: ['title', 'description', 'examples', 'fullText', 'tip', 'linkText', 'detailTitle', 'detailSubtitle', 'detailListTitle', 'content'],
+            fields: [
+              'title',
+              'description',
+              'examples',
+              'fullText',
+              'tip',
+              'linkText',
+              'detailTitle',
+              'detailSubtitle',
+              'detailListTitle',
+              'content',
+            ],
             forceOverwrite,
             sourceLocale,
           })
@@ -356,7 +367,7 @@ export const Commitments: CollectionConfig = {
         {
           baseURL: 'https://api.deepseek.com',
           apiKey: process.env.DEEPSEEK_API_KEY!,
-          model: 'deepseek-chat',
+          model: 'deepseek-v4-pro',
           temperature: 0.2,
           maxTokens: 500,
         },

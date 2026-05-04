@@ -91,7 +91,8 @@ export const ReferralMessages: CollectionConfig = {
               required: true,
               localized: true,
               admin: {
-                description: 'The message that will be shared when people share content in the app.',
+                description:
+                  'The message that will be shared when people share content in the app.',
               },
             },
             {
@@ -142,7 +143,7 @@ export const ReferralMessages: CollectionConfig = {
         {
           baseURL: 'https://api.deepseek.com',
           apiKey: process.env.DEEPSEEK_API_KEY!,
-          model: 'deepseek-chat',
+          model: 'deepseek-v4-pro',
           temperature: 0.2,
           maxTokens: 500,
         },

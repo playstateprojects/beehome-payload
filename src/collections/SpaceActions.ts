@@ -315,7 +315,7 @@ export const SpaceActions: CollectionConfig = {
         {
           baseURL: 'https://api.deepseek.com',
           apiKey: process.env.DEEPSEEK_API_KEY!,
-          model: 'deepseek-chat',
+          model: 'deepseek-v4-pro',
           temperature: 0.2,
           maxTokens: 300,
         },

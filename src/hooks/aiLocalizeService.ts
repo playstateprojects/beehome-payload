@@ -461,6 +461,8 @@ export async function localizeDocument(
       return { success: false, message: 'All locales already have content' }
     }
 
+    console.log(`[aiLocalize] toFill:`, JSON.stringify(toFill.map(t => ({ locale: t.locale, fields: t.fieldsMissing }))))
+
     const extraContext = { collection: collectionSlug, knownKeys: config.fields, hints: {} }
     const results = await Promise.allSettled(
       toFill.map(async ({ locale, fieldsMissing }) => {
@@ -478,6 +480,7 @@ export async function localizeDocument(
         })
 
         const result = await callJSONModel<Record<string, string | Segment[]>>(client, sys, user)
+        console.log(`[aiLocalize] ${locale} LLM result keys:`, Object.keys(result ?? {}))
 
         const patch: Record<string, any> = {}
 
@@ -502,6 +505,7 @@ export async function localizeDocument(
           }
         }
 
+        console.log(`[aiLocalize] ${locale} patch keys:`, Object.keys(patch))
         if (Object.keys(patch).length === 0) return null
 
         if (config.dryRun) {

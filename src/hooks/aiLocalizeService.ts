@@ -462,24 +462,21 @@ export async function localizeDocument(
     }
 
     const extraContext = { collection: collectionSlug, knownKeys: config.fields, hints: {} }
-    const localesUpdated: string[] = []
+    const results = await Promise.allSettled(
+      toFill.map(async ({ locale, fieldsMissing }) => {
+        const filteredSource = Object.fromEntries(
+          fieldsMissing.map((f) => [f, sourceValues[f]]),
+        ) as Record<string, string | Segment[]>
 
-    for (const { locale, fieldsMissing } of toFill) {
-      // Only send the source values for fields that need filling
-      const filteredSource = Object.fromEntries(
-        fieldsMissing.map((f) => [f, sourceValues[f]]),
-      ) as Record<string, string | Segment[]>
+        const { sys, user } = buildPrompt({
+          collection: collectionSlug,
+          sourceLocale: actualSourceLocale,
+          targetLocale: locale,
+          fields: fieldsMissing,
+          sourceValues: filteredSource,
+          extraContext,
+        })
 
-      const { sys, user } = buildPrompt({
-        collection: collectionSlug,
-        sourceLocale: actualSourceLocale,
-        targetLocale: locale,
-        fields: fieldsMissing,
-        sourceValues: filteredSource,
-        extraContext,
-      })
-
-      try {
         const result = await callJSONModel<Record<string, string | Segment[]>>(client, sys, user)
 
         const patch: Record<string, any> = {}
@@ -497,7 +494,6 @@ export async function localizeDocument(
                 setByPath(patch, f, applySegmentsToSlate(richMeta.structure, proposed as Segment[]))
               }
             } else if (richMeta && typeof proposed === 'string' && proposed) {
-              // LLM returned a string for a richText field — surface as-is
               setByPath(patch, f, proposed)
             }
           } else {
@@ -506,14 +502,11 @@ export async function localizeDocument(
           }
         }
 
-        if (Object.keys(patch).length === 0) {
-          continue
-        }
+        if (Object.keys(patch).length === 0) return null
 
         if (config.dryRun) {
           console.log(`[aiLocalize][dryRun] ${collectionSlug}#${docId} -> ${locale}`, patch)
-          localesUpdated.push(locale)
-          continue
+          return locale
         }
 
         await payload.update({
@@ -525,11 +518,19 @@ export async function localizeDocument(
           overrideAccess: true,
         })
 
-        localesUpdated.push(locale)
-      } catch (err) {
+        return locale
+      }),
+    )
+
+    const localesUpdated: string[] = []
+    for (const [i, outcome] of results.entries()) {
+      if (outcome.status === 'fulfilled' && outcome.value) {
+        localesUpdated.push(outcome.value)
+      } else if (outcome.status === 'rejected') {
+        const { locale } = toFill[i]
         console.error(
           `[aiLocalize] ${collectionSlug}#${docId} ${actualSourceLocale}->${locale} failed`,
-          err,
+          outcome.reason,
         )
       }
     }

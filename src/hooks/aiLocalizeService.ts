@@ -25,7 +25,6 @@ type FieldMap = Map<string, FieldMeta>
 /** A single translatable text run extracted from a rich text structure */
 type Segment = { id: number; text: string; blockType?: string }
 
-const HEADER_GUARD = 'x-ai-localize'
 
 function detectLocalizedFieldsWithMeta(collection: any): { fields: string[]; meta: FieldMap } {
   const fields: string[] = []
@@ -207,6 +206,7 @@ async function callJSONModel<T = any>(
         temperature: opts.temperature ?? 0.2,
         response_format: { type: 'json_object' },
         max_tokens: opts.maxTokens ?? 65536,
+        thinking: { type: 'disabled' },
       }),
       signal: controller.signal,
     })
@@ -293,7 +293,7 @@ function contentScore(
   docAllLocales: any,
   fields: string[],
   locale: string,
-  meta: FieldMap,
+  _meta: FieldMap,
 ): number {
   let score = 0
   for (const f of fields) {
@@ -327,10 +327,10 @@ export async function localizeDocument(
   const client: ClientOpts = {
     baseURL: 'https://api.deepseek.com',
     apiKey: process.env.DEEPSEEK_API_KEY!,
-    model: 'deepseek-v4-pro',
+    model: 'deepseek-v4-flash',
     temperature: 0.2,
-    maxTokens: 65536,
-    timeoutMs: 180000,
+    maxTokens: 8192,
+    timeoutMs: 120000,
     ...clientOverrides,
   }
   try {
@@ -361,12 +361,14 @@ export async function localizeDocument(
     )
     const requestedTargets = config.targetLocales?.length ? config.targetLocales : allLocales
 
+    console.log(`[aiLocalize] fetching doc ${collectionSlug}#${docId}`)
     const docAllLocales = await payload.findByID({
       collection: collectionSlug,
       id: docId,
       depth: 0,
       locale: 'all',
     })
+    console.log(`[aiLocalize] doc fetched, id=${docAllLocales?.id}`)
 
     const scores = Object.fromEntries(
       allLocales.map((l) => [l, contentScore(docAllLocales, fieldsToLocalize, l, fieldMeta)]),
@@ -461,7 +463,7 @@ export async function localizeDocument(
       return { success: false, message: 'All locales already have content' }
     }
 
-    console.log(`[aiLocalize] toFill:`, JSON.stringify(toFill.map(t => ({ locale: t.locale, fields: t.fieldsMissing }))))
+    console.log(`[aiLocalize] toFill: ${JSON.stringify(toFill.map(t => ({ locale: t.locale, fields: t.fieldsMissing })))}`)
 
     const extraContext = { collection: collectionSlug, knownKeys: config.fields, hints: {} }
     const results = await Promise.allSettled(
@@ -479,8 +481,9 @@ export async function localizeDocument(
           extraContext,
         })
 
+        console.log(`[aiLocalize] ${locale} calling LLM (${fieldsMissing.length} fields, prompt ~${user.length} chars)`)
         const result = await callJSONModel<Record<string, string | Segment[]>>(client, sys, user)
-        console.log(`[aiLocalize] ${locale} LLM result keys:`, Object.keys(result ?? {}))
+        console.log(`[aiLocalize] ${locale} LLM result keys: ${JSON.stringify(Object.keys(result ?? {}))}`)
 
         const patch: Record<string, any> = {}
 
@@ -505,14 +508,15 @@ export async function localizeDocument(
           }
         }
 
-        console.log(`[aiLocalize] ${locale} patch keys:`, Object.keys(patch))
+        console.log(`[aiLocalize] ${locale} patch keys: ${JSON.stringify(Object.keys(patch))}`)
         if (Object.keys(patch).length === 0) return null
 
         if (config.dryRun) {
-          console.log(`[aiLocalize][dryRun] ${collectionSlug}#${docId} -> ${locale}`, patch)
+          console.log(`[aiLocalize][dryRun] ${collectionSlug}#${docId} -> ${locale} ${JSON.stringify(patch)}`)
           return locale
         }
 
+        console.log(`[aiLocalize] ${locale} writing patch`)
         await payload.update({
           collection: collectionSlug,
           id: docId,
@@ -521,6 +525,7 @@ export async function localizeDocument(
           depth: 0,
           overrideAccess: true,
         })
+        console.log(`[aiLocalize] ${locale} done`)
 
         return locale
       }),

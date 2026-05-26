@@ -76,6 +76,7 @@ export interface Config {
     'space-actions': SpaceAction;
     'push-notifications': PushNotification;
     'referral-messages': ReferralMessage;
+    partners: Partner;
     'space-types': SpaceType;
     'space-progress-levels': SpaceProgressLevel;
     commitments: Commitment;
@@ -101,6 +102,7 @@ export interface Config {
     'space-actions': SpaceActionsSelect<false> | SpaceActionsSelect<true>;
     'push-notifications': PushNotificationsSelect<false> | PushNotificationsSelect<true>;
     'referral-messages': ReferralMessagesSelect<false> | ReferralMessagesSelect<true>;
+    partners: PartnersSelect<false> | PartnersSelect<true>;
     'space-types': SpaceTypesSelect<false> | SpaceTypesSelect<true>;
     'space-progress-levels': SpaceProgressLevelsSelect<false> | SpaceProgressLevelsSelect<true>;
     commitments: CommitmentsSelect<false> | CommitmentsSelect<true>;
@@ -890,6 +892,26 @@ export interface ReferralMessage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners".
+ */
+export interface Partner {
+  id: number;
+  /**
+   * Partner name (used as the title in the admin).
+   */
+  name: string;
+  logo?: (number | null) | Media;
+  coverImage?: (number | null) | Media;
+  shortDescription?: string | null;
+  longDescription?: string | null;
+  url?: string | null;
+  appReferralCode?: string | null;
+  email?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "space-progress-levels".
  */
 export interface SpaceProgressLevel {
@@ -1059,6 +1081,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'referral-messages';
         value: number | ReferralMessage;
+      } | null)
+    | ({
+        relationTo: 'partners';
+        value: number | Partner;
       } | null)
     | ({
         relationTo: 'space-types';
@@ -1357,6 +1383,22 @@ export interface ReferralMessagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners_select".
+ */
+export interface PartnersSelect<T extends boolean = true> {
+  name?: T;
+  logo?: T;
+  coverImage?: T;
+  shortDescription?: T;
+  longDescription?: T;
+  url?: T;
+  appReferralCode?: T;
+  email?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -26,7 +26,6 @@ export const Articles: CollectionConfig = {
       handler: async (req) => {
         const { id } = req.routeParams || {}
         const payload = req.payload
-        console.log(payload)
         if (!id) {
           return Response.json({ success: false, message: 'No document ID provided' })
         }

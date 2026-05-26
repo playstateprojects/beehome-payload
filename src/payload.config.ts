@@ -25,6 +25,7 @@ import { SpaceActions } from './collections/SpaceActions'
 import BeeInfo from './collections/BeeInfo'
 import { SpaceProgressLevel } from './collections/SpaceProgressLevel'
 import { ReferralMessages } from './collections/ReferralMessages'
+import { Partners } from './collections/Partners'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -62,6 +63,7 @@ export default buildConfig({
     SpaceActions,
     PushNotifications,
     ReferralMessages,
+    Partners,
     SpaceTypes,
     SpaceProgressLevel,
     Commitments,
